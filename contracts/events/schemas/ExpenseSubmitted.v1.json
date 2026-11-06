@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.slateiq.com/events/expense/ExpenseSubmitted.v1.json",
+  "title": "ExpenseSubmitted",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "aggregateId",
+    "orgId",
+    "timestamp",
+    "correlationId",
+    "version",
+    "payload"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "eventType": { "type": "string", "const": "expense.submitted.v1" },
+    "aggregateId": { "type": "string", "format": "uuid" },
+    "orgId": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "correlationId": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "payload": {
+      "type": "object",
+      "required": [
+        "expenseId",
+        "rootExpenseId",
+        "showId",
+        "submittedByUserId",
+        "totalNetAmount",
+        "totalTaxAmount",
+        "currency",
+        "approvalInstanceId",
+        "lineCount"
+      ],
+      "properties": {
+        "expenseId": { "type": "string", "format": "uuid" },
+        "rootExpenseId": { "type": "string", "format": "uuid" },
+        "showId": { "type": "string", "format": "uuid" },
+        "submittedByUserId": { "type": "string", "format": "uuid" },
+        "totalNetAmount": { "type": "string", "pattern": "^-?[0-9]+\\.[0-9]{4}$" },
+        "totalTaxAmount": { "type": "string", "pattern": "^-?[0-9]+\\.[0-9]{4}$" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "approvalInstanceId": { "type": "string", "format": "uuid" },
+        "lineCount": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

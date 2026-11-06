@@ -1,0 +1,25 @@
+{
+  "name": "slateiq-monorepo",
+  "version": "1.0.0",
+  "description": "SlateIQ — Production Cost Intelligence & Audit Monitoring Platform",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "web",
+    "mobile"
+  ],
+  "scripts": {
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "infra:logs": "docker compose logs -f",
+    "infra:reset": "docker compose down -v && docker compose up -d",
+    "contracts:lint": "node ./scripts/validate-contracts.js"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

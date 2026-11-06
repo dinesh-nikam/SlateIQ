@@ -1,0 +1,53 @@
+```mermaid
+%% Business Context Diagram - SlateIQ
+%% Shows external actors, systems, and data flows at the ecosystem level
+
+C4Context
+title Business Context Diagram — SlateIQ Production Cost Intelligence & Audit Monitoring Platform
+
+Enterprise_Boundary(b0, "SlateIQ Platform") {
+    System(slateiq, "SlateIQ", "Multi-tenant SaaS Platform", "Production cost intelligence, audit standardization, cost-overrun detection, evidence management, Excel integration, mobile offline capture")
+}
+
+Person_Ext(ott_admin, "OTT Platform Admin", "Commissions shows, owns budgets, appoints auditors, receives management reports")
+Person_Ext(broadcaster_admin, "Broadcaster Admin", "Commissions shows, owns budgets, appoints auditors, receives management reports")
+Person_Ext(prod_house_admin, "Production House Admin", "Manages production finances, vendor payments, internal audit team")
+Person_Ext(finance_head, "Finance Head / Cost Controller", "Approves budgets, authorizes expenses, monitors variances, signs off reports")
+Person_Ext(audit_manager, "Audit Manager", "Assigns auditors, reviews audit reports, manages audit assignments")
+Person_Ext(internal_auditor, "Internal Auditor", "On-ground expense capture, evidence collection, daily reporting")
+Person_Ext(external_auditor, "External Auditor", "Independent audit engagement, assigned shows only, evidence review")
+Person_Ext(platform_auditor, "Platform-Appointed Auditor", "OTT/Broadcaster representative auditor, specific show scope")
+Person_Ext(dept_head, "Department Head", "Submits/approves department expenses, manages category budgets")
+Person_Ext(accounts_exec, "Accounts Executive", "Processes vendor payments, reconciles POs, manages expense records")
+Person_Ext(mgmt_viewer, "Management Viewer (CXO/VP)", "Portfolio dashboards, cross-show benchmarking, cost-overrun alerts")
+
+System_Ext(erp, "ERP / Accounting System", "General ledger, AP/AR, financial reporting", "Receives approved expenses, vendor payments, budget data")
+System_Ext(hris, "HRIS / Payroll System", "Crew contracts, payroll, labor costs", "Future: crew cost integration (out of scope Phase 1)")
+System_Ext(doc_store, "Document Storage (S3/MinIO)", "Invoices, receipts, photos, contracts, audit evidence", "Encrypted at rest, signed URLs for access")
+System_Ext(email_svc, "Email / Notification Service", "Transactional email, push notifications, webhooks", "SendGrid, SES, FCM, custom webhooks")
+System_Ext(auth_provider, "Identity Provider (Optional)", "SSO, SAML/OIDC, MFA", "Keycloak, Auth0, Azure AD, Okta — optional integration")
+System_Ext(excel_files, "Excel Reports (Legacy)", "Auditor Excel templates, historical imports/exports", "Round-trip compatibility required")
+System_Ext(banking, "Banking / Payment Gateway", "Vendor payments, expense reimbursements", "Future integration (out of scope Phase 1)")
+
+Rel(ott_admin, slateiq, "Manages shows, budgets, auditor assignments", "HTTPS/REST")
+Rel(broadcaster_admin, slateiq, "Manages shows, budgets, auditor assignments", "HTTPS/REST")
+Rel(prod_house_admin, slateiq, "Manages production finances, vendors, internal auditors", "HTTPS/REST")
+Rel(finance_head, slateiq, "Approves budgets/expenses, reviews variances, exports reports", "HTTPS/REST")
+Rel(audit_manager, slateiq, "Creates audit assignments, reviews submissions, manages scope", "HTTPS/REST")
+Rel(internal_auditor, slateiq, "Captures expenses, uploads evidence, submits daily reports", "HTTPS/REST + Mobile App (Offline)")
+Rel(external_auditor, slateiq, "Reviews assigned shows only, validates evidence, submits findings", "HTTPS/REST + Mobile App (Offline)")
+Rel(platform_auditor, slateiq, "Audits platform-appointed shows, reports to appointing party", "HTTPS/REST + Mobile App (Offline)")
+Rel(dept_head, slateiq, "Manages department budget, approves category expenses", "HTTPS/REST")
+Rel(accounts_exec, slateiq, "Processes vendor payments, reconciles POs, manages expenses", "HTTPS/REST")
+Rel(mgmt_viewer, slateiq, "Views portfolio dashboards, receives alerts, exports reports", "HTTPS/REST")
+
+Rel(slateiq, erp, "Pushes approved expenses, budget revisions, vendor data", "Async/Outbox → REST/Message Queue")
+Rel(slateiq, hris, "Pulls crew cost data (future)", "Async/Scheduled")
+Rel(slateiq, doc_store, "Stores/retrieves evidence documents, signed URLs", "S3 API")
+Rel(slateiq, email_svc, "Sends notifications, alerts, report deliveries", "Async/Outbox → REST")
+Rel(slateiq, auth_provider, "Delegates authentication (optional)", "OIDC/SAML")
+Rel(slateiq, excel_files, "Imports legacy data, exports standardized reports", "File upload/download + parsing")
+Rel(slateiq, banking, "Initiates vendor payments (future)", "Async/Outbox → REST")
+
+UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+```

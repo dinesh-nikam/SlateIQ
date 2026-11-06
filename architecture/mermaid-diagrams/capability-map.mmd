@@ -1,0 +1,129 @@
+```mermaid
+%% Business Capability Map - SlateIQ
+%% Shows capabilities grouped by bounded context with priority and dependencies
+
+graph TB
+    subgraph "Tenant & Identity Context"
+        CAP001[CAP-001: Multi-Tenant Org Management\nP0]
+        CAP002[CAP-002: Auth & Session Management\nP0]
+        CAP003[CAP-003: RBAC\nP0]
+    end
+
+    subgraph "Production Management Context"
+        CAP004[CAP-004: Show/Season/Episode Lifecycle\nP0]
+        CAP005[CAP-005: Department & Category Management\nP0]
+    end
+
+    subgraph "Budget Management Context"
+        CAP006[CAP-006: Budget Creation & Versioning\nP0]
+        CAP007[CAP-007: Budget Approval Workflows\nP0]
+    end
+
+    subgraph "Vendor & Procurement Context"
+        CAP008[CAP-008: Vendor Registry & Risk Profiling\nP0]
+        CAP009[CAP-009: Purchase Order Management\nP1]
+        CAP010[CAP-010: Commitment Tracking\nP1]
+    end
+
+    subgraph "Audit Management Context"
+        CAP011[CAP-011: Auditor Assignment & Scoping\nP0]
+    end
+
+    subgraph "Expense & Cost Capture Context"
+        CAP012[CAP-012: Mobile Offline Expense Capture\nP0]
+        CAP013[CAP-013: Expense Validation & Approval\nP0]
+    end
+
+    subgraph "Document & Evidence Context"
+        CAP014[CAP-014: Evidence Management\nP0]
+        CAP024[CAP-024: Data Retention & Archival\nP1]
+    end
+
+    subgraph "Cost Intelligence Context"
+        CAP015[CAP-015: Cost Variance Calculation\nP0]
+        CAP016[CAP-016: Cost Overrun Detection & Alerting\nP0]
+        CAP017[CAP-017: EFC Forecasting\nP1]
+        CAP018[CAP-018: Cross-Show Benchmarking\nP1]
+        CAP019[CAP-019: Management Dashboards\nP0]
+    end
+
+    subgraph "Excel Integration Context"
+        CAP020[CAP-020: Excel Import with Validation\nP0]
+        CAP021[CAP-021: Excel Export (Standardized Reports)\nP0]
+    end
+
+    subgraph "Audit Trail & Compliance Context"
+        CAP022[CAP-022: Business Audit Trail\nP0]
+        CAP023[CAP-023: Security Audit Trail\nP0]
+    end
+
+    subgraph "Notification & Alerting Context"
+        CAP025[CAP-025: Multi-Channel Notifications\nP1]
+    end
+
+    %% Dependencies (simplified - key ones only)
+    CAP001 --> CAP003
+    CAP002 --> CAP003
+    CAP003 --> CAP004
+    CAP003 --> CAP005
+    CAP003 --> CAP006
+    CAP003 --> CAP008
+    CAP003 --> CAP011
+    CAP003 --> CAP012
+    CAP003 --> CAP013
+    CAP003 --> CAP014
+    CAP003 --> CAP015
+    CAP003 --> CAP019
+    CAP003 --> CAP020
+    CAP003 --> CAP022
+    CAP003 --> CAP023
+
+    CAP004 --> CAP005
+    CAP004 --> CAP006
+    CAP004 --> CAP011
+    CAP004 --> CAP012
+
+    CAP005 --> CAP006
+    CAP005 --> CAP012
+
+    CAP006 --> CAP007
+    CAP006 --> CAP015
+
+    CAP008 --> CAP009
+    CAP009 --> CAP010
+    CAP009 --> CAP013
+    CAP010 --> CAP015
+
+    CAP011 --> CAP012
+    CAP011 --> CAP013
+
+    CAP012 --> CAP013
+    CAP012 --> CAP014
+    CAP012 --> CAP015
+
+    CAP013 --> CAP015
+    CAP013 --> CAP016
+
+    CAP014 --> CAP024
+
+    CAP015 --> CAP016
+    CAP015 --> CAP017
+    CAP015 --> CAP018
+    CAP015 --> CAP019
+
+    CAP016 --> CAP025
+
+    CAP017 --> CAP019
+    CAP018 --> CAP019
+
+    CAP020 --> CAP012
+    CAP020 --> CAP013
+
+    CAP022 --> CAP023
+
+    classDef p0 fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px,color:#fff
+    classDef p1 fill:#374151,stroke:#6b7280,stroke-width:2px,color:#fff
+
+    class CAP001,CAP002,CAP003,CAP004,CAP005,CAP006,CAP007,CAP008,CAP011,CAP012,CAP013,CAP014,CAP015,CAP016,CAP019,CAP020,CAP021,CAP022,CAP023 p0
+    class CAP009,CAP010,CAP017,CAP018,CAP024,CAP025 p1
+```

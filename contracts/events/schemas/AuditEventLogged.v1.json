@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.slateiq.com/events/compliance/AuditEventLogged.v1.json",
+  "title": "AuditEventLogged",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "aggregateId",
+    "orgId",
+    "timestamp",
+    "correlationId",
+    "version",
+    "payload"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "eventType": { "type": "string", "const": "compliance.audit_event_logged.v1" },
+    "aggregateId": { "type": "string", "format": "uuid" },
+    "orgId": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "correlationId": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "payload": {
+      "type": "object",
+      "required": [
+        "auditEventId",
+        "actorUserId",
+        "action",
+        "entityType",
+        "entityId",
+        "previousHash",
+        "currentHash"
+      ],
+      "properties": {
+        "auditEventId": { "type": "string", "format": "uuid" },
+        "actorUserId": { "type": "string", "format": "uuid" },
+        "action": { "type": "string" },
+        "entityType": { "type": "string" },
+        "entityId": { "type": "string", "format": "uuid" },
+        "previousState": { "type": ["object", "null"] },
+        "newState": { "type": ["object", "null"] },
+        "previousHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "currentHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    }
+  }
+}

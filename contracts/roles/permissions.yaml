@@ -1,0 +1,160 @@
+# contracts/roles/permissions.yaml
+# SlateIQ Canonical Roles, Scopes, and Permissions Model (Document 3 §5, Appendix A)
+version: "1.0.0"
+
+scopes:
+  - ORG
+  - SHOW
+  - SEASON
+  - EPISODE
+  - DEPARTMENT
+  - ASSIGNMENT
+  - SELF
+
+actions:
+  - create
+  - read
+  - update
+  - delete
+  - submit
+  - approve
+  - reject
+  - export
+  - admin
+
+roles:
+  - code: ORG_ADMIN
+    name: "Organization Administrator"
+    mfa_required: true
+    is_system: true
+    description: "Full administrative control of the tenant organization, members, and settings."
+
+  - code: COMMISSIONING_ADMIN
+    name: "Commissioning Administrator"
+    mfa_required: true
+    is_system: true
+    description: "Broadcaster/Platform commissioning lead overseeing greenlit shows and approvals."
+
+  - code: PRODUCTION_ADMIN
+    name: "Production Administrator"
+    mfa_required: true
+    is_system: true
+    description: "Production house executive managing shows, budgets, and production teams."
+
+  - code: FINANCE_HEAD
+    name: "Finance Head"
+    mfa_required: true
+    is_system: true
+    description: "Top-tier financial officer managing budget baselines, period close, and major approvals."
+
+  - code: COST_CONTROLLER
+    name: "Cost Controller"
+    mfa_required: false
+    is_system: true
+    description: "Day-to-day production accountant tracking budgets, commitments, and variances."
+
+  - code: DEPARTMENT_HEAD
+    name: "Department Head"
+    mfa_required: false
+    is_system: true
+    description: "Crew lead (Art, Camera, Direction) responsible for departmental expenses and approvals."
+
+  - code: ACCOUNTS_EXECUTIVE
+    name: "Accounts Executive"
+    mfa_required: false
+    is_system: true
+    description: "Finance staff verifying vendor invoices, processing expenses, and tax reconciliation."
+
+  - code: AUDIT_MANAGER
+    name: "Audit Manager"
+    mfa_required: true
+    is_system: true
+    description: "Audit lead managing assignments, reviewing findings, and approving audit reports."
+
+  - code: INTERNAL_AUDITOR
+    name: "Internal Auditor"
+    mfa_required: false
+    is_system: true
+    description: "On-ground auditor capturing daily costs, performing receipt verification and field checks."
+
+  - code: MANAGEMENT_VIEWER
+    name: "Management Viewer"
+    mfa_required: false
+    is_system: true
+    description: "Executive read-only access to cross-show portfolio dashboards and variance trends."
+
+  - code: PRODUCTION_COORDINATOR
+    name: "Production Coordinator"
+    mfa_required: false
+    is_system: true
+    description: "On-ground coordinator logging logistics expenses and coordinating PO commitments."
+
+  - code: VENDOR_COORDINATOR
+    name: "Vendor Coordinator"
+    mfa_required: false
+    is_system: true
+    description: "Staff managing vendor onboarding, compliance documents, and contract archives."
+
+  - code: COMPLIANCE_OFFICER
+    name: "Compliance Officer"
+    mfa_required: true
+    is_system: true
+    description: "Compliance officer managing SoD rules, audit log verification, and legal holds."
+
+  - code: ACCESS_REVIEWER
+    name: "Access Reviewer"
+    mfa_required: true
+    is_system: true
+    description: "Identity administrator executing quarterly access reviews and membership audits."
+
+  - code: AUDIT_FIRM_ADMIN
+    name: "Audit Firm Administrator"
+    mfa_required: true
+    is_system: true
+    description: "External partner admin managing external auditor firm engagement assignments."
+
+  - code: SUPPORT_ENGINEER
+    name: "Support Engineer"
+    mfa_required: true
+    is_system: true
+    description: "Platform support staff with operational diagnostic rights; zero access to financial data."
+
+  - code: PLATFORM_OPERATIONS
+    name: "Platform Operations"
+    mfa_required: true
+    is_system: true
+    description: "SRE and infrastructure engineering role managing system health, jobs, and migrations."
+
+  - code: PLATFORM_SECURITY
+    name: "Platform Security"
+    mfa_required: true
+    is_system: true
+    description: "Security operations role managing KMS keys, token revocations, and threat response."
+
+external_grant_profiles:
+  - code: AUDIT_READ
+    description: "Read-only access to show budget, approved expenses, and financial summaries."
+    mfa_required: true
+  - code: AUDIT_EVIDENCE
+    description: "Access to view, inspect, and verify supporting evidence documents and raise disputes."
+    mfa_required: true
+  - code: AUDIT_FINANCE
+    description: "Deep audit access including cost postings, commitments, and audit finding lifecycle."
+    mfa_required: true
+
+permission_domains:
+  - tenancy
+  - identity
+  - prod
+  - budget
+  - vendor
+  - auditops
+  - expense
+  - intel
+  - docs
+  - xls
+  - notify
+  - compliance
+  - report
+  - sync
+  - ops

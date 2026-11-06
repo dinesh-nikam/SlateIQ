@@ -1,0 +1,281 @@
+openapi: 3.1.0
+info:
+  title: SlateIQ Production Cost Intelligence & Audit API
+  description: Canonical RESTful API for SlateIQ platform (SLQ-ARCH-009)
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Production & Staging Regional API Gateway
+  - url: http://localhost:5000/api/v1
+    description: Local Development Host
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Liveness and Readiness Probe
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: Service Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, timestamp, region, version]
+                properties:
+                  status:
+                    type: string
+                    example: "Healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  region:
+                    type: string
+                    example: "IN"
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+  /auth/login:
+    post:
+      summary: Authenticate User via Email and Password
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Authentication Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '423':
+          $ref: '#/components/responses/AccountLocked'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/mfa/challenge:
+    post:
+      summary: Complete TOTP MFA Challenge
+      operationId: completeMfaChallenge
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [challengeToken, totpCode]
+              properties:
+                challengeToken:
+                  type: string
+                totpCode:
+                  type: string
+                  pattern: '^[0-9]{6}$'
+      responses:
+        '200':
+          description: MFA Challenge Verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      summary: Rotate Refresh Token and Obtain New Access JWT
+      operationId: refreshToken
+      security: []
+      responses:
+        '200':
+          description: Token Rotated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      summary: Get Current Authenticated Principal and Memberships
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Current User Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: Unique UUID token to enforce idempotent processing on mutations
+      schema:
+        type: string
+        format: uuid
+    IfMatch:
+      name: If-Match
+      in: header
+      description: Optimistic concurrency control ETag string
+      schema:
+        type: string
+    CorrelationId:
+      name: X-Correlation-ID
+      in: header
+      description: Distributed tracing correlation UUID
+      schema:
+        type: string
+
+  schemas:
+    ProblemDetails:
+      type: object
+      description: RFC 9457 Machine-Readable Error Structure (ADR-007, ADR-040)
+      required: [type, title, status, code, instance, correlationId]
+      properties:
+        type:
+          type: string
+          format: uri
+          example: "https://api.slateiq.com/errors/ERR-008"
+        title:
+          type: string
+          example: "Permission Denied"
+        status:
+          type: integer
+          example: 403
+        code:
+          type: string
+          example: "PERMISSION_DENIED"
+        detail:
+          type: string
+          example: "Principal lacks required action 'expense.submit' on show scope"
+        instance:
+          type: string
+          example: "/api/v1/expenses/0193b2d4-5c1e-7a40-9f11-2b7c6e9d0a51/submit"
+        correlationId:
+          type: string
+          example: "0193b2d5-9a8b-7c00-a123-456789abcdef"
+        invalidParams:
+          type: array
+          items:
+            type: object
+            required: [name, reason]
+            properties:
+              name:
+                type: string
+              reason:
+                type: string
+
+    Money:
+      type: object
+      description: Fixed-point decimal currency amount (ADR-037)
+      required: [amount, currency]
+      properties:
+        amount:
+          type: string
+          pattern: '^-?[0-9]+\.[0-9]{4}$'
+          example: "12500.0000"
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: "INR"
+
+    TokenResponse:
+      type: object
+      required: [accessToken, tokenType, expiresInSeconds]
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          example: "Bearer"
+        expiresInSeconds:
+          type: integer
+          example: 900
+
+    AuthSuccessResponse:
+      type: object
+      required: [tokens, user]
+      properties:
+        tokens:
+          $ref: '#/components/schemas/TokenResponse'
+        user:
+          $ref: '#/components/schemas/UserProfileResponse'
+
+    UserProfileResponse:
+      type: object
+      required: [id, email, fullName, activeTenantId, roles]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        activeTenantId:
+          type: string
+          format: uuid
+        roles:
+          type: array
+          items:
+            type: string
+            example: "PRODUCTION_ADMIN"
+
+  responses:
+    Unauthorized:
+      description: Authentication Failed or Missing Token
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    AccountLocked:
+      description: Account Temporarily Locked
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    RateLimited:
+      description: API Rate Limit Exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'

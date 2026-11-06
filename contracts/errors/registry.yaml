@@ -1,0 +1,543 @@
+# contracts/errors/registry.yaml
+# SlateIQ Canonical API Error Registry (Document 9 §3)
+version: "1.0.0"
+errors:
+  # Pipeline, Identity & Access (Document 3 §11.4 / Document 9 §3.1)
+  - id: ERR-001
+    status: 400
+    code: TENANT_CONTEXT_MISMATCH
+    retryable: false
+    description: "Requested resource does not match active tenant context"
+  - id: ERR-002
+    status: 401
+    code: TOKEN_INVALID
+    retryable: false
+    description: "JWT access token signature or format is invalid"
+  - id: ERR-003
+    status: 401
+    code: TOKEN_EXPIRED
+    retryable: true
+    description: "JWT access token has expired; client should refresh and retry"
+  - id: ERR-004
+    status: 401
+    code: SESSION_REVOKED
+    retryable: false
+    description: "Session token was explicitly revoked or family invalidated"
+  - id: ERR-005
+    status: 401
+    code: SESSION_EXPIRED
+    retryable: false
+    description: "Session has exceeded maximum absolute lifetime"
+  - id: ERR-006
+    status: 401
+    code: INVALID_CREDENTIALS
+    retryable: false
+    description: "Supplied email or password does not match"
+  - id: ERR-007
+    status: 401
+    code: MFA_INVALID
+    retryable: false
+    description: "Supplied TOTP MFA code is incorrect or expired"
+  - id: ERR-008
+    status: 403
+    code: PERMISSION_DENIED
+    retryable: false
+    description: "Principal lacks the required action permission on domain resource"
+  - id: ERR-009
+    status: 403
+    code: SCOPE_DENIED
+    retryable: false
+    description: "Target object falls outside principal assigned scope hierarchy"
+  - id: ERR-010
+    status: 403
+    code: MEMBERSHIP_INACTIVE
+    retryable: false
+    description: "User membership within target organization is not active"
+  - id: ERR-011
+    status: 403
+    code: GRANT_INACTIVE
+    retryable: false
+    description: "Cross-tenant grant is suspended, pending, or revoked"
+  - id: ERR-012
+    status: 403
+    code: GRANT_EXPIRED
+    retryable: false
+    description: "Cross-tenant grant term has lapsed"
+  - id: ERR-013
+    status: 403
+    code: TENANT_SUSPENDED
+    retryable: false
+    description: "Organization tenant is currently suspended"
+  - id: ERR-014
+    status: 403
+    code: TENANT_ARCHIVED
+    retryable: false
+    description: "Organization tenant is archived and read-only"
+  - id: ERR-015
+    status: 403
+    code: STEP_UP_REQUIRED
+    retryable: true
+    description: "Action requires fresh step-up authentication"
+  - id: ERR-016
+    status: 403
+    code: SOD_CONFLICT
+    retryable: false
+    description: "Action violates Separation of Duties (SoD) enforcement rule"
+  - id: ERR-017
+    status: 403
+    code: SELF_APPROVAL_PROHIBITED
+    retryable: false
+    description: "Author cannot approve their own submission (BR-EXP-005)"
+  - id: ERR-018
+    status: 403
+    code: APPROVAL_LIMIT_EXCEEDED
+    retryable: false
+    description: "Approval transaction amount exceeds user financial threshold (BR-EXP-008)"
+  - id: ERR-019
+    status: 403
+    code: MODULE_NOT_ENTITLED
+    retryable: false
+    description: "Tenant subscription does not include entitlement for this module"
+  - id: ERR-020
+    status: 404
+    code: RESOURCE_NOT_FOUND
+    retryable: false
+    description: "Target resource does not exist or belongs to another tenant"
+  - id: ERR-021
+    status: 409
+    code: CONCURRENCY_STALE
+    retryable: true
+    description: "Resource modified concurrently; If-Match ETag is stale"
+  - id: ERR-022
+    status: 409
+    code: IDEMPOTENCY_KEY_REUSED
+    retryable: false
+    description: "Idempotency-Key previously used with a different request payload"
+  - id: ERR-023
+    status: 409
+    code: LEGAL_HOLD_ACTIVE
+    retryable: false
+    description: "Entity mutation or purge blocked due to active legal hold"
+  - id: ERR-024
+    status: 422
+    code: VALIDATION_FAILED
+    retryable: false
+    description: "Request payload failed domain schema validation"
+  - id: ERR-025
+    status: 423
+    code: ACCOUNT_LOCKED
+    retryable: true
+    description: "Account locked after excessive failed attempts; retry after lock window"
+  - id: ERR-026
+    status: 429
+    code: RATE_LIMITED
+    retryable: true
+    description: "Rate limit quota exceeded; inspect Retry-After header"
+  - id: ERR-027
+    status: 500
+    code: CONTEXT_UNSET
+    retryable: false
+    description: "Internal database session tenant context was not configured"
+  - id: ERR-028
+    status: 503
+    code: DEPENDENCY_UNAVAILABLE
+    retryable: true
+    description: "Critical downstream dependency temporarily unavailable"
+
+  # Protocol, Query and Concurrency (Document 9 §3.2)
+  - id: ERR-060
+    status: 400
+    code: MALFORMED_JSON
+    retryable: false
+    description: "Request body is not valid JSON"
+  - id: ERR-061
+    status: 413
+    code: PAYLOAD_TOO_LARGE
+    retryable: false
+    description: "Request body size exceeds maximum route limit"
+  - id: ERR-062
+    status: 415
+    code: UNSUPPORTED_MEDIA_TYPE
+    retryable: false
+    description: "Content-Type must be application/json"
+  - id: ERR-063
+    status: 422
+    code: FILTER_UNKNOWN
+    retryable: false
+    description: "Supplied query filter parameter is unrecognized"
+  - id: ERR-064
+    status: 422
+    code: SORT_UNKNOWN
+    retryable: false
+    description: "Supplied sort field is not allow-listed"
+  - id: ERR-065
+    status: 422
+    code: LIMIT_EXCEEDED
+    retryable: false
+    description: "Requested page limit exceeds maximum ceiling of 200"
+  - id: ERR-066
+    status: 422
+    code: CURSOR_INVALID
+    retryable: false
+    description: "Pagination cursor is malformed or tampered with"
+  - id: ERR-067
+    status: 410
+    code: CURSOR_EXPIRED
+    retryable: true
+    description: "Pagination cursor has expired (older than 24 hours); restart query"
+  - id: ERR-068
+    status: 428
+    code: PRECONDITION_REQUIRED
+    retryable: false
+    description: "Missing required If-Match header on mutable financial resource"
+  - id: ERR-069
+    status: 409
+    code: IDEMPOTENCY_IN_PROGRESS
+    retryable: true
+    description: "Concurrent request with identical Idempotency-Key currently executing"
+  - id: ERR-070
+    status: 409
+    code: RESOURCE_ID_CONFLICT
+    retryable: false
+    description: "Supplied client UUID was already assigned to different entity"
+  - id: ERR-071
+    status: 409
+    code: INVALID_STATE_TRANSITION
+    retryable: false
+    description: "Requested action is forbidden from the current aggregate state"
+  - id: ERR-072
+    status: 426
+    code: APP_VERSION_UNSUPPORTED
+    retryable: false
+    description: "Mobile client version is deprecated; upgrade required"
+  - id: ERR-073
+    status: 503
+    code: READ_ONLY_MODE
+    retryable: true
+    description: "Platform is running in degraded read-only mode during maintenance"
+
+  # Domain Codes (Document 9 §3.3)
+  - id: ERR-080
+    status: 409
+    code: PERIOD_LOCKED
+    retryable: false
+    module: MOD-04
+    description: "Financial period is locked; transactions dated in period are rejected (BR-BUD-009)"
+  - id: ERR-081
+    status: 422
+    code: FUTURE_DATE_NOT_ALLOWED
+    retryable: false
+    module: MOD-07
+    description: "Expense date cannot exceed allowed future tolerance (BR-EXP-002)"
+  - id: ERR-082
+    status: 422
+    code: SHOW_NOT_OPEN_FOR_CAPTURE
+    retryable: false
+    module: MOD-07
+    description: "Show is not in ACTIVE production status for expense capture (BR-PRD-002)"
+  - id: ERR-083
+    status: 422
+    code: CATEGORY_INACTIVE
+    retryable: false
+    module: MOD-07
+    description: "Selected expense category is marked inactive (BR-EXP-015)"
+  - id: ERR-084
+    status: 422
+    code: CATEGORY_NOT_MAPPED
+    retryable: false
+    module: MOD-07
+    description: "Production category is not mapped to chart of accounts"
+  - id: ERR-085
+    status: 422
+    code: VENDOR_BLOCKED
+    retryable: false
+    module: MOD-07
+    description: "Vendor is blocked from new financial commitments (BR-EXP-013)"
+  - id: ERR-086
+    status: 422
+    code: SPLIT_INVALID
+    retryable: false
+    module: MOD-07
+    description: "Sum of expense department splits does not match net amount (BR-EXP-012)"
+  - id: ERR-087
+    status: 422
+    code: TOTAL_MISMATCH
+    retryable: false
+    module: MOD-07
+    description: "Header total does not equal sum of lines plus taxes (BR-FIN-011)"
+  - id: ERR-088
+    status: 422
+    code: NEGATIVE_AMOUNT_NOT_ALLOWED
+    retryable: false
+    module: MOD-07
+    description: "Negative amount requires credit note reference (BR-FIN-008)"
+  - id: ERR-089
+    status: 422
+    code: EVIDENCE_REQUIRED
+    retryable: false
+    module: MOD-07
+    description: "Expense policy requires supporting document attachment (BR-EXP-001)"
+  - id: ERR-090
+    status: 409
+    code: EVIDENCE_NOT_AVAILABLE
+    retryable: true
+    module: MOD-07
+    description: "Evidence document is still undergoing asynchronous malware scan"
+  - id: ERR-091
+    status: 409
+    code: EVIDENCE_DISPUTED
+    retryable: false
+    module: MOD-07
+    description: "Disputed evidence attachment blocks final approval (UC-07)"
+  - id: ERR-092
+    status: 422
+    code: SUBMISSION_LIMIT_EXCEEDED
+    retryable: false
+    module: MOD-07
+    description: "Daily submission count exceeds creator rate ceiling (BR-EXP-014)"
+  - id: ERR-093
+    status: 422
+    code: OUT_OF_ASSIGNMENT_SCOPE
+    retryable: false
+    module: MOD-07
+    description: "Target department falls outside auditor active scope (BR-EXP-004)"
+  - id: ERR-094
+    status: 422
+    code: FX_RATE_UNAVAILABLE
+    retryable: false
+    module: MOD-04
+    description: "No exchange rate available for the given currency pair"
+  - id: ERR-095
+    status: 422
+    code: APPROVAL_CHAIN_UNRESOLVED
+    retryable: false
+    module: MOD-04
+    description: "No active approval workflow matching subject and amount tier"
+  - id: ERR-096
+    status: 409
+    code: APPROVAL_STEP_MISMATCH
+    retryable: false
+    module: MOD-04
+    description: "Approval decision targets a step that is not currently active"
+  - id: ERR-097
+    status: 422
+    code: COMMENT_REQUIRED
+    retryable: false
+    module: MOD-04
+    description: "Rejection or change request requires mandatory comment"
+  - id: ERR-098
+    status: 409
+    code: AMENDMENT_NOT_ALLOWED
+    retryable: false
+    module: MOD-07
+    description: "Expense in current status cannot be amended (BR-EXP-009)"
+  - id: ERR-099
+    status: 409
+    code: EVIDENCE_LINK_LOCKED
+    retryable: false
+    module: MOD-07
+    description: "Evidence cannot be unlinked from approved expense (BR-DOC-007)"
+  - id: ERR-100
+    status: 409
+    code: EXCEPTION_ALREADY_OPEN
+    retryable: false
+    module: MOD-07
+    description: "Identical exception already open on this transaction"
+  - id: ERR-101
+    status: 422
+    code: BUDGET_LINE_DUPLICATE
+    retryable: false
+    module: MOD-04
+    description: "Duplicate budget account code within same department (BR-BUD-002)"
+  - id: ERR-102
+    status: 422
+    code: BUDGET_INCOMPLETE
+    retryable: false
+    module: MOD-04
+    description: "Budget lacks mandatory department allocations"
+  - id: ERR-103
+    status: 422
+    code: ALLOCATION_EXCEEDS_SEASON
+    retryable: false
+    module: MOD-04
+    description: "Episode allocations sum exceeds parent season budget (BR-BUD-007)"
+  - id: ERR-104
+    status: 422
+    code: CONTINGENCY_DIRECT_USE
+    retryable: false
+    module: MOD-04
+    description: "Contingency line cannot be consumed directly by expenses (BR-BUD-004)"
+  - id: ERR-105
+    status: 422
+    code: REVISION_DETAILS_REQUIRED
+    retryable: false
+    module: MOD-04
+    description: "Budget revision requires stated business rationale (BR-BUD-005)"
+  - id: ERR-106
+    status: 403
+    code: SOLE_AUTHOR_APPROVAL
+    retryable: false
+    module: MOD-04
+    description: "Budget creator cannot serve as sole approver (BR-BUD-012)"
+  - id: ERR-107
+    status: 409
+    code: PERIOD_CLOSE_BLOCKED
+    retryable: false
+    module: MOD-04
+    description: "Period close blocked by pending draft expenses or unposted items"
+  - id: ERR-108
+    status: 409
+    code: VENDOR_DUPLICATE
+    retryable: false
+    module: MOD-05
+    description: "Vendor tax identifier (GSTIN/VAT) already registered (BR-VND-001)"
+  - id: ERR-109
+    status: 409
+    code: COMMITMENT_NOT_OPEN
+    retryable: false
+    module: MOD-05
+    description: "Target manual commitment is closed, cancelled, or expired (BR-VND-003)"
+  - id: ERR-110
+    status: 409
+    code: CLOSURE_BLOCKED
+    retryable: false
+    module: MOD-03
+    description: "Show closure blocked by open commitments or unapproved expenses (BR-PRD-001)"
+  - id: ERR-111
+    status: 422
+    code: HIERARCHY_INVALID
+    retryable: false
+    module: MOD-03
+    description: "Parent-child show hierarchy links are circular or invalid (BR-PRD-006)"
+  - id: ERR-112
+    status: 422
+    code: ASSIGNMENT_EXCEEDS_GRANT
+    retryable: false
+    module: MOD-06
+    description: "Audit assignment scope exceeds parent cross-tenant grant"
+  - id: ERR-113
+    status: 403
+    code: APPOINTING_PARTY_ONLY
+    retryable: false
+    module: MOD-06
+    description: "Only appointing party may revoke platform-appointed auditor (BR-AUD-006)"
+  - id: ERR-114
+    status: 409
+    code: AUDIT_REPORT_EXISTS
+    retryable: false
+    module: MOD-06
+    description: "Accepted audit report already exists for assignment and date"
+  - id: ERR-115
+    status: 409
+    code: ASSIGNMENT_NOT_ACTIVE
+    retryable: false
+    module: MOD-06
+    description: "Audit action requires an active assignment"
+  - id: ERR-116
+    status: 422
+    code: UPLOAD_REJECTED
+    retryable: false
+    module: MOD-09
+    description: "File extension, MIME type, or macro payload prohibited (FR-DOC-017)"
+  - id: ERR-117
+    status: 422
+    code: HASH_MISMATCH
+    retryable: false
+    module: MOD-09
+    description: "Uploaded document SHA-256 differs from upload ticket declaration"
+  - id: ERR-118
+    status: 410
+    code: UPLOAD_TICKET_EXPIRED
+    retryable: false
+    module: MOD-09
+    description: "Presigned upload ticket has exceeded 15-minute validity window"
+  - id: ERR-119
+    status: 409
+    code: DOCUMENT_NOT_CLEAN
+    retryable: true
+    module: MOD-09
+    description: "Download prohibited; document scan status is not AVAILABLE (BR-DOC-005)"
+  - id: ERR-120
+    status: 422
+    code: QUOTA_EXCEEDED
+    retryable: false
+    module: MOD-09
+    description: "Tenant file storage quota exceeded (FR-DOC-017)"
+  - id: ERR-121
+    status: 422
+    code: TEMPLATE_VERSION_MISMATCH
+    retryable: false
+    module: MOD-10
+    description: "Excel workbook template version is unsupported (BR-XLS-001)"
+  - id: ERR-122
+    status: 409
+    code: DUPLICATE_FILE_CONFIRMATION_REQUIRED
+    retryable: true
+    module: MOD-10
+    description: "Identical workbook previously committed; confirmation required (BR-XLS-003)"
+  - id: ERR-123
+    status: 422
+    code: ROW_LIMIT_EXCEEDED
+    retryable: false
+    module: MOD-10
+    description: "Workbook contains more than 50,000 rows"
+  - id: ERR-124
+    status: 409
+    code: IMPORT_ERROR_THRESHOLD
+    retryable: false
+    module: MOD-10
+    description: "Import batch error rate exceeds configured threshold (BR-XLS-004)"
+  - id: ERR-125
+    status: 409
+    code: PARTIAL_COMMIT_DISABLED
+    retryable: false
+    module: MOD-10
+    description: "Tenant policy forbids partial commit of invalid batches (BR-XLS-004)"
+  - id: ERR-126
+    status: 409
+    code: BATCH_NOT_COMMITTABLE
+    retryable: false
+    module: MOD-10
+    description: "Import batch must be in VALIDATED status before commit"
+  - id: ERR-127
+    status: 409
+    code: EXPORT_NOT_READY
+    retryable: true
+    module: MOD-10
+    description: "Report export is still generating or download link has expired"
+  - id: ERR-128
+    status: 422
+    code: SYNC_SEQ_GAP
+    retryable: false
+    module: MOD-14
+    description: "Sequence gap detected in mobile mutation stream; full sync required"
+  - id: ERR-129
+    status: 409
+    code: SYNC_RANGE_REPLAYED
+    retryable: false
+    module: MOD-14
+    description: "Mutation range replayed with conflicting checksum"
+  - id: ERR-130
+    status: 403
+    code: DEVICE_NOT_ACTIVE
+    retryable: false
+    module: MOD-14
+    description: "Mobile device session has been revoked or remote-wiped"
+  - id: ERR-131
+    status: 409
+    code: SCOPE_VERSION_STALE
+    retryable: true
+    module: MOD-14
+    description: "Auditor scope version has changed; client must refresh scope"
+  - id: ERR-132
+    status: 409
+    code: OFFLINE_OPERATION_NOT_ALLOWED
+    retryable: false
+    module: MOD-14
+    description: "Requested financial operation is online-only (Document 6 §9.4)"
+  - id: ERR-133
+    status: 422
+    code: WEBHOOK_URL_REJECTED
+    retryable: false
+    module: MOD-11
+    description: "Webhook endpoint must be public HTTPS and not private IP space"

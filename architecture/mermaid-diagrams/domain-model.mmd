@@ -1,0 +1,718 @@
+```mermaid
+%% Domain Model Diagram - SlateIQ
+%% Conceptual ERD showing core entities and relationships across bounded contexts
+
+erDiagram
+    %% TENANT & IDENTITY CONTEXT
+    ORGANIZATION ||--o{ USER : "contains"
+    ORGANIZATION ||--o{ ROLE : "defines"
+    ORGANIZATION ||--o{ PERMISSION : "scopes"
+    ROLE }|--o{ ROLE_PERMISSION : "grants"
+    USER }|--o{ USER_ROLE : "assigned"
+    ROLE ||--o{ USER_ROLE : "assigned_to"
+    ORGANIZATION ||--o{ AUDIT_ASSIGNMENT : "creates"
+    USER ||--o{ AUDIT_ASSIGNMENT : "assigned_auditor"
+    SHOW ||--o{ AUDIT_ASSIGNMENT : "scoped_to"
+
+    %% PRODUCTION MANAGEMENT CONTEXT
+    ORGANIZATION ||--o{ SHOW : "owns"
+    SHOW ||--o{ SEASON : "has"
+    SEASON ||--o{ EPISODE : "contains"
+    SHOW ||--o{ EPISODE : "direct_episodes"
+    ORGANIZATION ||--o{ DEPARTMENT : "org_level_depts"
+    SHOW ||--o{ DEPARTMENT : "show_level_depts"
+    DEPARTMENT ||--o{ DEPARTMENT : "parent_child"
+    DEPARTMENT ||--o{ EXPENSE_CATEGORY : "categorizes"
+    ORGANIZATION ||--o{ EXPENSE_CATEGORY : "org_categories"
+
+    %% BUDGET MANAGEMENT CONTEXT
+    SHOW ||--o{ BUDGET : "has_budgets"
+    SEASON ||--o{ BUDGET : "season_budget"
+    BUDGET ||--o{ BUDGET_LINE : "contains_lines"
+    DEPARTMENT ||--o{ BUDGET_LINE : "dept_allocation"
+    EXPENSE_CATEGORY ||--o{ BUDGET_LINE : "category_allocation"
+    BUDGET ||--o{ BUDGET_REVISION : "history"
+    ORGANIZATION ||--o{ APPROVAL_WORKFLOW : "defines_workflows"
+    BUDGET }|--|| APPROVAL_WORKFLOW : "follows"
+
+    %% VENDOR & PROCUREMENT CONTEXT
+    ORGANIZATION ||--o{ VENDOR : "registers"
+    SHOW ||--o{ PURCHASE_ORDER : "issues"
+    VENDOR ||--o{ PURCHASE_ORDER : "supplies"
+    PURCHASE_ORDER ||--o{ PO_LINE : "contains_lines"
+    DEPARTMENT ||--o{ PO_LINE : "dept_line"
+    EXPENSE_CATEGORY ||--o{ PO_LINE : "category_line"
+    PURCHASE_ORDER ||--o{ COMMITMENT : "generates"
+    VENDOR ||--o{ COMMITMENT : "vendor_commitment"
+    SHOW ||--o{ COMMITMENT : "show_commitment"
+    DEPARTMENT ||--o{ COMMITMENT : "dept_commitment"
+    EXPENSE_CATEGORY ||--o{ COMMITMENT : "category_commitment"
+
+    %% AUDIT MANAGEMENT CONTEXT
+    ORGANIZATION ||--o{ AUDIT_TEAM : "forms"
+    USER ||--o{ AUDIT_TEAM : "lead_auditor"
+    SHOW ||--o{ AUDIT_TEAM : "team_for_show"
+    DEPARTMENT ||--o{ AUDIT_TEAM : "team_dept"
+    AUDIT_ASSIGNMENT ||--o{ AUDIT_SCOPE : "defines_scope"
+    SHOW ||--o{ AUDIT_SCOPE : "show_scope"
+    DEPARTMENT ||--o{ AUDIT_SCOPE : "dept_scope"
+    USER ||--o{ AUDITOR_PROFILE : "profile"
+
+    %% EXPENSE & COST CAPTURE CONTEXT
+    SHOW ||--o{ EXPENSE : "incurs"
+    SEASON ||--o{ EXPENSE : "season_expense"
+    EPISODE ||--o{ EXPENSE : "episode_expense"
+    DEPARTMENT ||--o{ EXPENSE : "dept_expense"
+    VENDOR ||--o{ EXPENSE : "vendor_expense"
+    USER ||--o{ EXPENSE : "submitted_by_auditor"
+    EXPENSE ||--o{ EXPENSE_LINE : "has_lines"
+    EXPENSE_CATEGORY ||--o{ EXPENSE_LINE : "categorized_as"
+    EXPENSE ||--o{ EVIDENCE : "supported_by"
+    EXPENSE_LINE ||--o{ EVIDENCE : "line_evidence"
+    DOCUMENT ||--o{ EVIDENCE : "document_ref"
+    EXPENSE ||--o{ EXPENSE_APPROVAL : "approval_history"
+    USER ||--o{ EXPENSE_APPROVAL : "approver"
+    EXPENSE ||--o{ EXCEPTION : "may_trigger"
+    SHOW ||--o{ EXCEPTION : "show_exception"
+    DEPARTMENT ||--o{ EXCEPTION : "dept_exception"
+    VENDOR ||--o{ EXCEPTION : "vendor_exception"
+    USER ||--o{ EXCEPTION : "assigned_to"
+
+    %% COST INTELLIGENCE CONTEXT
+    SHOW ||--o{ VARIANCE : "show_variance"
+    DEPARTMENT ||--o{ VARIANCE : "dept_variance"
+    EXPENSE_CATEGORY ||--o{ VARIANCE : "category_variance"
+    SHOW ||--o{ FORECAST : "show_forecast"
+    DEPARTMENT ||--o{ FORECAST : "dept_forecast"
+    EXPENSE_CATEGORY ||--o{ FORECAST : "category_forecast"
+    ORGANIZATION ||--o{ COST_BENCHMARK : "org_benchmarks"
+    EXPENSE_CATEGORY ||--o{ COST_BENCHMARK : "category_benchmark"
+    ORGANIZATION ||--o{ ALERT_RULE : "defines_rules"
+    ALERT_RULE ||--o{ ALERT : "triggers"
+    SHOW ||--o{ ALERT : "show_alert"
+    DEPARTMENT ||--o{ ALERT : "dept_alert"
+    ORGANIZATION ||--o{ DASHBOARD_METRIC : "aggregates"
+    SHOW ||--o{ DASHBOARD_METRIC : "show_metrics"
+    DEPARTMENT ||--o{ DASHBOARD_METRIC : "dept_metrics"
+    EXPENSE_CATEGORY ||--o{ DASHBOARD_METRIC : "category_metrics"
+
+    %% DOCUMENT & EVIDENCE CONTEXT
+    ORGANIZATION ||--o{ DOCUMENT : "owns_documents"
+    DOCUMENT ||--o{ DOCUMENT_VERSION : "versions"
+    DOCUMENT ||--o{ ACCESS_LOG : "access_log"
+    USER ||--o{ ACCESS_LOG : "accessor"
+    ORGANIZATION ||--o{ RETENTION_POLICY : "defines_policies"
+
+    %% EXCEL INTEGRATION CONTEXT
+    ORGANIZATION ||--o{ EXCEL_TEMPLATE : "defines_templates"
+    EXCEL_TEMPLATE ||--o{ IMPORT_BATCH : "used_in"
+    IMPORT_BATCH ||--o{ IMPORT_RECORD : "contains_records"
+    EXCEL_TEMPLATE ||--o{ EXPORT_JOB : "generates"
+    USER ||--o{ IMPORT_BATCH : "uploaded_by"
+    USER ||--o{ EXPORT_JOB : "requested_by"
+
+    %% NOTIFICATION & ALERTING CONTEXT
+    ORGANIZATION ||--o{ NOTIFICATION : "sends"
+    USER ||--o{ NOTIFICATION : "recipient"
+    ORGANIZATION ||--o{ DELIVERY_CHANNEL : "configures"
+    ALERT_RULE ||--o{ ESCALATION_POLICY : "escalates_via"
+    ORGANIZATION ||--o{ ESCALATION_POLICY : "org_policies"
+
+    %% AUDIT TRAIL & COMPLIANCE CONTEXT
+    ORGANIZATION ||--o{ BUSINESS_AUDIT_EVENT : "audits"
+    ORGANIZATION ||--o{ SECURITY_AUDIT_EVENT : "sec_audits"
+    USER ||--o{ SECURITY_AUDIT_EVENT : "actor"
+    ORGANIZATION ||--o{ COMPLIANCE_RECORD : "tracks"
+
+    %% ENTITY DEFINITIONS WITH KEY ATTRIBUTES
+    ORGANIZATION {
+        uuid org_id PK
+        string name
+        string slug UK
+        enum status
+        string base_currency
+        string timezone
+        jsonb settings
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    USER {
+        uuid user_id PK
+        uuid org_id FK
+        string email UK
+        string password_hash
+        string full_name
+        string phone
+        enum status
+        boolean mfa_enabled
+        timestamp last_login_at
+        timestamp created_at
+    }
+
+    ROLE {
+        uuid role_id PK
+        uuid org_id FK
+        string name
+        string description
+        boolean is_system
+        timestamp created_at
+    }
+
+    PERMISSION {
+        uuid perm_id PK
+        string code UK
+        string resource
+        string action
+        enum scope
+        string description
+    }
+
+    USER_ROLE {
+        uuid user_id PK,FK
+        uuid role_id PK,FK
+        enum scope_type
+        uuid scope_id
+        timestamp assigned_at
+        uuid assigned_by
+    }
+
+    AUDIT_ASSIGNMENT {
+        uuid assignment_id PK
+        uuid org_id FK
+        uuid auditor_user_id FK
+        uuid show_id FK
+        uuid department_id FK
+        date start_date
+        date end_date
+        enum status
+        uuid created_by
+    }
+
+    SHOW {
+        uuid show_id PK
+        uuid org_id FK
+        string title
+        string slug
+        enum type
+        enum status
+        date start_date
+        date end_date
+        uuid production_house_id
+        uuid broadcaster_id
+        uuid ott_platform_id
+        timestamp created_at
+    }
+
+    SEASON {
+        uuid season_id PK
+        uuid show_id FK
+        integer season_number
+        string title
+        enum status
+        date start_date
+        date end_date
+        integer episode_count_planned
+    }
+
+    EPISODE {
+        uuid episode_id PK
+        uuid season_id FK
+        uuid show_id FK
+        integer episode_number
+        string title
+        enum status
+        date shoot_start_date
+        date shoot_end_date
+        decimal planned_budget
+    }
+
+    DEPARTMENT {
+        uuid dept_id PK
+        uuid org_id FK
+        uuid show_id FK
+        string code
+        string name
+        string description
+        uuid parent_dept_id FK
+        boolean is_active
+    }
+
+    EXPENSE_CATEGORY {
+        uuid category_id PK
+        uuid org_id FK
+        uuid dept_id FK
+        string code
+        string name
+        string description
+        string tax_treatment
+        boolean is_active
+        integer sort_order
+    }
+
+    BUDGET {
+        uuid budget_id PK
+        uuid org_id FK
+        uuid show_id FK
+        uuid season_id FK
+        integer version
+        enum status
+        decimal total_approved_amount
+        string currency
+        timestamp approved_at
+        uuid approved_by
+        timestamp created_at
+    }
+
+    BUDGET_LINE {
+        uuid line_id PK
+        uuid budget_id FK
+        uuid dept_id FK
+        uuid category_id FK
+        decimal approved_amount
+        string currency
+        string notes
+        timestamp created_at
+    }
+
+    BUDGET_REVISION {
+        uuid revision_id PK
+        uuid budget_id FK
+        integer version
+        string change_reason
+        uuid changed_by
+        decimal previous_total
+        decimal new_total
+        enum status
+        timestamp created_at
+    }
+
+    APPROVAL_WORKFLOW {
+        uuid workflow_id PK
+        uuid org_id FK
+        string name
+        enum trigger_entity
+        jsonb steps
+        boolean is_active
+    }
+
+    VENDOR {
+        uuid vendor_id PK
+        uuid org_id FK
+        string code UK
+        string legal_name
+        string trade_name
+        string tax_id
+        string gst_number
+        string pan
+        jsonb address
+        jsonb contact
+        integer payment_terms_days
+        enum status
+        enum risk_rating
+        timestamp created_at
+    }
+
+    PURCHASE_ORDER {
+        uuid po_id PK
+        uuid org_id FK
+        uuid show_id FK
+        uuid vendor_id FK
+        string po_number UK
+        enum status
+        date issue_date
+        date expected_date
+        string currency
+        decimal total_amount
+        uuid created_by
+    }
+
+    PO_LINE {
+        uuid po_line_id PK
+        uuid po_id FK
+        uuid dept_id FK
+        uuid category_id FK
+        string description
+        decimal quantity
+        decimal unit_price
+        string currency
+        decimal tax_rate
+        decimal committed_amount
+    }
+
+    COMMITMENT {
+        uuid commitment_id PK
+        uuid org_id FK
+        uuid show_id FK
+        uuid vendor_id FK
+        uuid dept_id FK
+        uuid category_id FK
+        decimal committed_amount
+        string currency
+        enum source
+        date valid_from
+        date valid_to
+    }
+
+    AUDIT_TEAM {
+        uuid team_id PK
+        uuid org_id FK
+        string name
+        uuid lead_auditor_id FK
+        uuid show_id FK
+        uuid department_id FK
+        timestamp created_at
+    }
+
+    AUDIT_SCOPE {
+        uuid scope_id PK
+        uuid assignment_id FK
+        uuid show_id FK
+        uuid department_id FK
+        uuid[] category_ids
+        enum permission_level
+        date start_date
+        date end_date
+    }
+
+    AUDITOR_PROFILE {
+        uuid profile_id PK
+        uuid user_id FK
+        string employee_id
+        string qualification
+        string specialization
+        decimal hourly_rate
+        string preferred_currency
+        jsonb notification_prefs
+    }
+
+    EXPENSE {
+        uuid expense_id PK
+        uuid org_id FK
+        uuid show_id FK
+        uuid season_id FK
+        uuid episode_id FK
+        uuid dept_id FK
+        uuid vendor_id FK
+        uuid auditor_id FK
+        enum status
+        enum source
+        timestamp submitted_at
+        uuid submitted_by
+        decimal total_amount
+        string currency
+        decimal exchange_rate
+        string notes
+    }
+
+    EXPENSE_LINE {
+        uuid line_id PK
+        uuid expense_id FK
+        uuid category_id FK
+        string description
+        decimal quantity
+        decimal unit_price
+        string currency
+        decimal tax_rate
+        decimal tax_amount
+        decimal line_amount
+        boolean evidence_required
+    }
+
+    EVIDENCE {
+        uuid evidence_id PK
+        uuid org_id FK
+        uuid expense_id FK
+        uuid line_id FK
+        uuid document_id FK
+        enum evidence_type
+        string description
+        timestamp uploaded_at
+        uuid uploaded_by
+        enum verification_status
+    }
+
+    EXPENSE_APPROVAL {
+        uuid approval_id PK
+        uuid expense_id FK
+        uuid approver_user_id FK
+        enum action
+        string comment
+        enum previous_status
+        enum new_status
+        timestamp decided_at
+        string ip_address
+    }
+
+    EXCEPTION {
+        uuid exception_id PK
+        uuid org_id FK
+        uuid expense_id FK
+        uuid show_id FK
+        uuid dept_id FK
+        uuid vendor_id FK
+        enum type
+        enum severity
+        string description
+        timestamp detected_at
+        enum status
+        uuid assigned_to
+    }
+
+    VARIANCE {
+        uuid variance_id PK
+        uuid org_id FK
+        uuid show_id FK
+        uuid dept_id FK
+        uuid category_id FK
+        date period_start
+        date period_end
+        decimal budget_amount
+        decimal actual_amount
+        decimal committed_amount
+        decimal forecast_amount
+        decimal variance_amount
+        decimal variance_pct
+        timestamp calculated_at
+    }
+
+    FORECAST {
+        uuid forecast_id PK
+        uuid org_id FK
+        uuid show_id FK
+        uuid dept_id FK
+        uuid category_id FK
+        enum method
+        decimal projected_amount
+        decimal confidence_level
+        jsonb assumptions
+        timestamp generated_at
+        uuid generated_by
+    }
+
+    COST_BENCHMARK {
+        uuid benchmark_id PK
+        uuid org_id FK
+        uuid category_id FK
+        enum show_type
+        enum metric
+        decimal value
+        string currency
+        integer sample_size
+        date period_from
+        date period_to
+        timestamp updated_at
+    }
+
+    ALERT_RULE {
+        uuid rule_id PK
+        uuid org_id FK
+        string name
+        enum scope
+        enum metric
+        enum condition
+        decimal threshold_value
+        enum severity
+        integer cooldown_minutes
+        boolean is_active
+    }
+
+    ALERT {
+        uuid alert_id PK
+        uuid org_id FK
+        uuid show_id FK
+        uuid dept_id FK
+        uuid rule_id FK
+        decimal triggered_value
+        decimal threshold_value
+        enum severity
+        string message
+        timestamp acknowledged_at
+        uuid acknowledged_by
+        timestamp resolved_at
+    }
+
+    DASHBOARD_METRIC {
+        uuid metric_id PK
+        uuid org_id FK
+        uuid show_id FK
+        uuid dept_id FK
+        uuid category_id FK
+        string metric_type
+        string period
+        decimal value
+        string currency
+        timestamp computed_at
+    }
+
+    DOCUMENT {
+        uuid document_id PK
+        uuid org_id FK
+        string original_filename
+        string stored_filename
+        string storage_path
+        string mime_type
+        bigint file_size_bytes
+        string checksum_sha256
+        enum malware_scan_status
+        uuid uploaded_by
+        timestamp uploaded_at
+        timestamp retention_until
+    }
+
+    DOCUMENT_VERSION {
+        uuid version_id PK
+        uuid document_id FK
+        integer version_number
+        string storage_path
+        string checksum_sha256
+        uuid changed_by
+        timestamp changed_at
+        string change_reason
+    }
+
+    ACCESS_LOG {
+        uuid log_id PK
+        uuid document_id FK
+        uuid user_id FK
+        enum action
+        string ip_address
+        string user_agent
+        timestamp timestamp
+    }
+
+    RETENTION_POLICY {
+        uuid policy_id PK
+        uuid org_id FK
+        string entity_type
+        integer min_retention_years
+        integer max_retention_years
+        integer archive_after_years
+        integer delete_after_years
+        boolean legal_hold
+    }
+
+    EXCEL_TEMPLATE {
+        uuid template_id PK
+        uuid org_id FK
+        string name
+        integer version
+        enum type
+        enum entity_target
+        jsonb column_mapping
+        jsonb validation_rules
+        boolean is_default
+        uuid created_by
+    }
+
+    IMPORT_BATCH {
+        uuid batch_id PK
+        uuid org_id FK
+        uuid template_id FK
+        uuid uploaded_by FK
+        enum status
+        integer total_rows
+        integer valid_rows
+        integer error_rows
+        string file_path
+        timestamp created_at
+        timestamp completed_at
+    }
+
+    IMPORT_RECORD {
+        uuid record_id PK
+        uuid batch_id FK
+        integer row_number
+        enum status
+        uuid entity_id
+        string entity_type
+        jsonb error
+        jsonb warning
+        timestamp created_at
+    }
+
+    EXPORT_JOB {
+        uuid job_id PK
+        uuid org_id FK
+        uuid template_id FK
+        uuid requested_by FK
+        jsonb filters
+        enum status
+        string file_path
+        integer row_count
+        timestamp created_at
+        timestamp completed_at
+    }
+
+    NOTIFICATION {
+        uuid notification_id PK
+        uuid org_id FK
+        uuid user_id FK
+        enum channel
+        uuid template_id FK
+        jsonb payload
+        enum status
+        timestamp sent_at
+        timestamp delivered_at
+        integer retry_count
+    }
+
+    DELIVERY_CHANNEL {
+        uuid channel_id PK
+        uuid org_id FK
+        enum channel_type
+        jsonb config
+        boolean is_active
+        timestamp tested_at
+    }
+
+    ESCALATION_POLICY {
+        uuid policy_id PK
+        uuid org_id FK
+        uuid alert_rule_id FK
+        integer level
+        integer delay_minutes
+        uuid[] recipient_user_ids
+        enum[] channel_types
+        boolean is_active
+    }
+
+    BUSINESS_AUDIT_EVENT {
+        ulid event_id PK
+        uuid org_id FK
+        ulid correlation_id
+        uuid actor_user_id FK
+        string actor_role
+        enum action
+        string entity_type
+        uuid entity_id
+        jsonb previous_state
+        jsonb new_state
+        jsonb metadata
+        timestamp timestamp
+    }
+
+    SECURITY_AUDIT_EVENT {
+        ulid event_id PK
+        uuid org_id FK
+        uuid user_id FK
+        enum event_type
+        string ip_address
+        string user_agent
+        boolean success
+        string failure_reason
+        timestamp timestamp
+    }
+
+    COMPLIANCE_RECORD {
+        uuid record_id PK
+        uuid org_id FK
+        string regulation
+        string requirement
+        uuid[] evidence_document_ids
+        enum status
+        timestamp assessed_at
+        uuid assessed_by
+        date next_review_date
+    }
+```
