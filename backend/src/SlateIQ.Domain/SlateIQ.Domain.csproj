@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>SlateIQ.Domain</RootNamespace>
+    <AssemblyName>SlateIQ.Domain</AssemblyName>
+  </PropertyGroup>
+</Project>
