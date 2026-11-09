@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, AlertTriangle, CheckCircle2, Clock, DollarSign } from 'lucide-react';
+import { TrendingUp, CheckCircle2, Clock, DollarSign } from 'lucide-react';
 import type { ShowSummary } from '../types';
 
 export const DashboardPage: React.FC = () => {
