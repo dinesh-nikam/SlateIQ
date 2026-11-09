@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "SlateIQ — Production Cost Intelligence & Audit Monitoring Platform",
   "private": true,
+  "type": "module",
   "workspaces": [
     "contracts",
     "web",
