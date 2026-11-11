@@ -273,6 +273,21 @@ CREATE TABLE IF NOT EXISTS ops.feature_flag (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS ops.provisioning_run (
+    run_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id UUID REFERENCES tenancy.organization(id) ON DELETE SET NULL,
+    slug TEXT NOT NULL,
+    region CHAR(2) NOT NULL CHECK (region IN ('IN', 'EU')),
+    status TEXT NOT NULL DEFAULT 'RUNNING' CHECK (status IN ('RUNNING', 'SUCCEEDED', 'FAILED', 'COMPENSATED')),
+    current_step INT NOT NULL DEFAULT 1 CHECK (current_step BETWEEN 1 AND 10),
+    step_log JSONB NOT NULL DEFAULT '[]'::jsonb,
+    idempotency_key TEXT NOT NULL UNIQUE,
+    requested_by UUID,
+    started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    completed_at TIMESTAMPTZ,
+    last_error TEXT
+);
+
 -- ----------------------------------------------------------------------------
 -- 5. INDEXING STRATEGY
 -- ----------------------------------------------------------------------------

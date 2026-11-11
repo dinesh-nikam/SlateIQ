@@ -80,6 +80,7 @@ jobs:
         run: |
           test -f infra/migrations/001_initial_foundation_tenancy_identity_ops_compliance.sql
           test -f infra/migrations/002_seed_canonical_roles_and_permissions.sql
+          test -f infra/migrations/003_ops_provisioning_run.sql
           echo "Verified migration files present."
 
       - name: Verify Row Level Security Policies
