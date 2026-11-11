@@ -14,7 +14,8 @@
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f",
     "infra:reset": "docker compose down -v && docker compose up -d",
-    "contracts:lint": "node ./scripts/validate-contracts.js"
+    "contracts:lint": "node ./scripts/validate-contracts.js",
+    "rls:lint": "node ./scripts/verify-rls.js"
   },
   "devDependencies": {
     "prettier": "^3.3.3"

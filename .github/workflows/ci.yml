@@ -65,14 +65,22 @@ jobs:
         run: dotnet test backend/SlateIQ.sln --no-build -c Release --verbosity normal
 
   database-migrations-lint:
-    name: Validate Database Migrations
+    name: Validate Database Migrations & RLS
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Verify Migration Files
         run: |
           test -f infra/migrations/001_initial_foundation_tenancy_identity_ops_compliance.sql
           test -f infra/migrations/002_seed_canonical_roles_and_permissions.sql
           echo "Verified migration files present."
+
+      - name: Verify Row Level Security Policies
+        run: node ./scripts/verify-rls.js
