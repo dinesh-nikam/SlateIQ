@@ -18,6 +18,7 @@
 | Version | Date | Author | Change |
 |---------|------|--------|--------|
 | 1.0.0 | 2026-11-06 | Architecture Team | First issue. Consolidates and extends Document 6 §12 and §15; defines account, network, compute, data-service, repository, environment, configuration, container, pipeline, migration, release, dedicated-deployment, backup and disaster-recovery architecture; ADR-062 to ADR-065 |
+| 1.1.0 | 2026-11-12 | Architecture Team | Adds §14A, the zero-cost deployment profile required by constraint C-01 (Document 0 §8, ADR-068) |
 
 ### Related Documents
 
@@ -1267,6 +1268,83 @@ Document 1 D-018 and Document 3 §2.2 offer dedicated deployment as an enterpris
 | Customer-specific maintenance windows or change approval | Any | D2 |
 
 These thresholds are proposals for the Principal Architect and business owner (OQ-15-02).
+
+---
+
+## 14A. Zero-Cost Deployment Profile (Constraint C-01, ADR-068)
+
+The business owner requires that the complete application can be built and deployed free of charge, and confirmed on 2026-11-12 that this covers **building and evaluation only** (Document 0 §8, ADR-068 accepted). This section defines the `zero-cost` profile used for development, CI, demonstrations and customer evaluation. It runs the same images as the managed profile with open-source substitutes on a single host, extends the local Compose environment of §8.2 and does not fork the code. **It never holds production or customer production data**; production tenants run only on the managed profile in their home region (India: `ap-south-1`), and mobile apps ship through the App Store and Play Store (§13.6), whose fees are accepted.
+
+### 14A.1 Profile Comparison
+
+| Concern | Managed profile (§3 to §15) | Zero-cost profile |
+|---------|-----------------------------|-------------------|
+| Compute | ECS Fargate services | Docker Compose on one Linux host (x86-64 or ARM64): a customer-owned server or an always-free cloud VM tier |
+| Edge | CDN, WAF, load balancer | Caddy reverse proxy with automatic Let's Encrypt certificates, HTTP/2, security headers from Document 10; application rate limiting unchanged |
+| Database | Managed PostgreSQL 17 Multi-AZ | `postgres:17` container, same roles, extensions and RLS (§8.2); PgBouncer in transaction mode |
+| Cache | Managed Redis 7.4 | Valkey 8 container (Redis protocol; BSD licence) |
+| Object storage | S3 with Object Lock | MinIO container with versioning and object locking in governance mode on `evidence` and `audit-archive` |
+| Malware scanning | Scanner service | ClamAV container (same image) |
+| Keys | Cloud KMS | File-based KMS adapter: master key in a Docker secret on an encrypted volume (Document 10 note) |
+| Secrets | Secrets manager | Docker secrets mounted as files; `.env` holds no secret values |
+| Email | Provider adapter | SMTP adapter to any free-tier relay; Mailpit for evaluation installs |
+| FX feed | ECB/OER daily | ECB reference rates (free) only |
+| Telemetry | OTLP to managed backends | OpenTelemetry Collector to Prometheus, Loki, Tempo and Grafana containers (`obs` profile), or structured logs only |
+| CI/CD | GitHub Actions | GitHub Actions within free minutes; self-hosted runner on the same or a second free host if exceeded |
+| Images | Private registry | GitHub Container Registry (free for public images; private within free storage) or images built on the host |
+| Mobile distribution | App Store and Play Store | Android: signed APK by direct download or MDM; iOS: not free (§14A.6) |
+
+### 14A.2 Composition
+
+`infra/compose/docker-compose.zero-cost.yml` extends `docker-compose.yml` and adds `caddy`, `valkey` (replacing `redis`) and a `backup` service. All images are pinned by digest. Every service has a health check, `restart: unless-stopped`, a memory limit and a read-only root filesystem where the image allows.
+
+| Service | Minimum memory | Notes |
+|---------|----------------|-------|
+| `caddy` | 64 MB | Only service publishing ports 80 and 443 |
+| `api`, `sync` | 512 MB each | Backend image with host profiles (ADR-063) |
+| `worker` | 512 MB | Outbox, jobs, projections, scheduling |
+| `renderer` | 768 MB | Headless Chromium; can be disabled, reports then render on demand in `worker` with lower concurrency |
+| `ops` | 256 MB | Internal ops host; not exposed through Caddy |
+| `postgres` + `pgbouncer` | 2 GB | `shared_buffers` 512 MB |
+| `valkey` | 256 MB | `maxmemory-policy allkeys-lru` for cache keys; denylist keys have TTLs |
+| `minio` | 512 MB | Data on its own volume |
+| `scanner` | 1.5 GB | Signature database dominates |
+| `backup` | 128 MB | Scheduled `pg_dump`, WAL archiving, off-host copy |
+| `obs` stack (optional) | 1.5 GB | Omit on hosts under 12 GB |
+
+**Host sizing.** Minimum 4 vCPU, 12 GB RAM and 100 GB disk for an evaluation tenant; 4 vCPU and 24 GB for a pilot tenant with up to about 75 users and 2,000 expenses a month (Document 1 §13.8). Hosts below the minimum run without `obs` and `renderer`.
+
+### 14A.3 Build and Release
+
+1. The same pipelines of §11 build the same images; a `zero-cost` job publishes them to the registry and runs the full Document 16 suite against `docker-compose.zero-cost.yml` (ADR-068 consequence).
+2. Release on the host: `docker compose pull`, run the one-shot `migrator`, then `docker compose up -d`. Migrations follow the expand/contract rule (§12), so the previous images keep working against the new schema.
+3. Rollback: re-pin the previous image digests in the Compose file and `up -d`; schema stays (expand/contract).
+4. Updates are applied in a maintenance window announced to users; zero-downtime rolling deployment is not offered on a single host.
+
+### 14A.4 Backup and Recovery
+
+| Item | Method | Target |
+|------|--------|--------|
+| Database | Nightly `pg_dump` (custom format) plus continuous WAL archiving to MinIO | RPO 24 hours with dumps alone; about 15 minutes when WAL archiving is enabled |
+| Evidence and exports | MinIO versioning; nightly mirror to a second, independent free storage location | RPO 24 hours |
+| Off-host copy | Encrypted (age or GPG) before leaving the host | Mandatory; a single-host backup is not a backup |
+| Restore drill | Monthly restore of the latest dump into a scratch Compose project, verified by the audit-chain check (Document 14) | Evidence kept |
+| RTO | Rebuild host from the Compose files, restore database and objects | Best effort, about 8 hours |
+
+### 14A.5 Security Notes
+
+The Document 10 controls apply unchanged in the application. The profile differs only where a managed service provided the control: TLS terminates at Caddy; there is no WAF, so the application rate limits and the Caddy request-size limits are the edge defence; the KMS master key lives on the host, so host disk encryption, restricted SSH, automatic security updates and a host firewall allowing only 22 (restricted source), 80 and 443 are mandatory; object locking runs in governance mode, which an administrator with root on the host can bypass, so it is weaker evidence than compliance mode for SOC 2.
+
+### 14A.6 Limits
+
+These limits are acceptable because the profile is for build and evaluation only.
+
+| Limit | Reason | Consequence |
+|-------|--------|-------------|
+| iOS evaluation builds | Free provisioning only installs on a developer's own devices | Evaluation testers use Android APKs or TestFlight under the paid Apple programme used for production |
+| NFR-AVL targets not met | Single host, no redundancy | Not a production profile |
+| No residency guarantee | Depends on the host's location | Evaluation data is synthetic or customer sample data with consent; India-resident production data stays on the managed profile in `ap-south-1` |
+| Capacity ceiling | One host | Evaluation scale only; a trial that converts moves to the managed profile by the per-tenant export and restore of Document 8 |
 
 ---
 

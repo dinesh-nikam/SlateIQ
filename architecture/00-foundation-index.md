@@ -237,14 +237,14 @@ Each document lists its own notes with a proposed resolution: Document 4 (11), 5
 | Audit history defined | Pass | Document 14 |
 | Observability defined | Pass | Document 14 |
 | Testing strategy defined | Pass | Document 16 (TS-01 to TS-42) |
-| Deployment architecture defined | Pass, with open constraint | Document 15 (paid managed cloud); zero-cost profile C-01 in §8 not yet reflected in Document 15 |
+| Deployment architecture defined | Pass | Document 15: managed production profile (§3 to §15) and zero-cost build and evaluation profile (§14A, C-01, ADR-068 accepted) |
 | No critical architectural gaps remain | **Conditional** | See §6 |
 
 **Verdict.** The foundation is complete enough to start Phase 0 (Document 18 §5.1). It is **not** production-ready, and no document is yet approved: every document is a draft awaiting its named reviewers.
 
 ## 6. Conditions Before Production Readiness
 
-1. Close the blocking decisions in Document 17 §4: G-01, G-02, OD-01, OQ-4-05, OQ-5-01, A2-04, OQ-13-01, G-03, G-04, G-06, the CERT-In applicability question, and the zero-cost constraint C-01 (ADR-068).
+1. Close the blocking decisions in Document 17 §4: G-01, G-02, OD-01, OQ-4-05, OQ-5-01, A2-04, OQ-13-01, G-03, G-04, G-06 and the CERT-In applicability question. Constraint C-01 is closed (ADR-068 accepted, §8).
 2. Review and accept or reject the reconciliation notes of §4.3 and the change requests of §4.2.
 3. Obtain sign-off of every document from the reviewers named in its header.
 4. Pass the Document 16 pre-production scenarios and the Document 1 §17 pilot entry gate.
@@ -263,7 +263,15 @@ Each document lists its own notes with a proposed resolution: Document 4 (11), 5
 
 ### 8.1 Statement
 
-Recorded 2026-11-12 from the business owner: the complete application must be buildable and deployable free of charge. Interpreted as: no paid software licences, no paid build service and a hosting option with no recurring charge, using the same code and container images as the paid production profile.
+Recorded 2026-11-12 from the business owner: the complete application must be buildable and deployable free of charge, using the same code and container images as the paid production profile.
+
+**Scope confirmed by the business owner (2026-11-12, closes OQ-0-01 to OQ-0-03):**
+
+1. "Free" applies to **building and evaluation only**. Production runs on the paid managed profile (ADR-015, Document 15 §3 to §15).
+2. **iOS is required.** The Apple Developer Program fee is accepted; field capture ships on iOS and Android.
+3. **India-resident data is hosted on a paid, in-region service.** The managed profile in AWS `ap-south-1` (Document 15 §4) is accepted; no free host is needed for production data.
+
+Consequently the limits in §8.3 apply only to evaluation installs; none of them affects production.
 
 ### 8.2 Impact Analysis
 
@@ -293,7 +301,7 @@ These are not achievable without paid services and are disclosed rather than des
 3. Multi-AZ resilience, managed key custody and the Object Lock compliance mode used as audit evidence for SOC 2.
 4. Data residency guarantees beyond the region of the chosen free host.
 
-### 8.4 Zero-Cost Deployment Profile (Proposed)
+### 8.4 Zero-Cost Deployment Profile (Build and Evaluation Only)
 
 ```mermaid
 flowchart TB
@@ -321,23 +329,23 @@ flowchart TB
     MINIO -->|"off-host copy"| BACKUP["Second free storage location"]
 ```
 
-### 8.5 ADR-068 — Zero-Cost Deployment Profile Alongside the Managed Profile (Provisional)
+### 8.5 ADR-068 — Zero-Cost Profile for Build and Evaluation; Managed Profile for Production
 
 | Field | Content |
 |-------|---------|
-| **Status** | Provisional — confirm with the business owner (gate C-01) |
-| **Context** | The business owner requires that the complete application can be built and deployed free of charge. The baseline (ADR-015) uses paid managed AWS services. |
-| **Decision** | Keep one codebase and one set of container images. Add a second deployment profile, "zero-cost", run by Docker Compose on a single host with open-source substitutes (Valkey, MinIO, Caddy, self-hosted PostgreSQL and telemetry). Every infrastructure dependency is reached through its standard protocol (PostgreSQL wire, Redis protocol, S3 API, SMTP, OTLP), so the application does not change between profiles. The managed profile (ADR-015) stays the recommended profile for paying production tenants. |
-| **Alternatives rejected** | Replace the managed profile entirely (loses the availability, residency and SOC 2 evidence commitments of Document 1); use proprietary free tiers with lock-in (they expire or change terms). |
-| **Consequences** | Document 15 gains a zero-cost profile section and a `docker-compose.zero-cost.yml`; Documents 8, 10 and 14 add profile notes for backups, key custody and telemetry; Document 16 runs the full suite against both profiles; iOS distribution and the NFR-AVL targets remain unavailable at zero cost (§8.3). |
+| **Status** | Accepted (business owner, 2026-11-12) |
+| **Context** | The business owner requires that the complete application can be built and deployed free of charge, and confirmed that this covers building and evaluation only; production may use paid services, including iOS distribution and in-region hosting for India-resident data. The baseline (ADR-015) uses paid managed AWS services. |
+| **Decision** | Keep one codebase and one set of container images. Every infrastructure dependency is open source or reached through its standard protocol (PostgreSQL wire, Redis protocol, S3 API, SMTP, OTLP). Provide a "zero-cost" profile, run by Docker Compose on a single host with open-source substitutes (Valkey, MinIO, Caddy, self-hosted PostgreSQL and telemetry), for development, CI, demonstrations, customer evaluation and trials. Production tenants run only on the managed profile (ADR-015) in their home region, for example AWS `ap-south-1` for India. Mobile apps are distributed through the App Store and Play Store. |
+| **Alternatives rejected** | Zero-cost production on a single host (fails NFR-AVL, residency and SOC 2 evidence commitments); replacing the managed profile with self-hosted infrastructure (shifts operational burden without business need); proprietary free tiers with lock-in (they expire or change terms). |
+| **Consequences** | Document 15 §14A defines the evaluation profile and states that it holds no production data. Document 16 runs the full suite against the evaluation profile in CI at no cost. ADR-013 and the store distribution in Document 15 §13.6 are unchanged; the Apple Developer Program and Google Play fees are accepted production costs. No paid SaaS or proprietary SDK may become a build-time dependency (CLAUDE.md). |
 
-### 8.6 Open Items
+### 8.6 Decisions Recorded
 
-| ID | Question | Owner |
-|----|----------|-------|
-| OQ-0-01 | Does "free" apply to production hosting, or to build and evaluation only? | Business owner |
-| OQ-0-02 | Is Android-only field capture acceptable if iOS distribution must be free? | Business owner |
-| OQ-0-03 | Which free host is acceptable for India-resident data? | Business owner, Legal |
+| ID | Question | Answer (business owner, 2026-11-12) |
+|----|----------|--------------------------------------|
+| OQ-0-01 | Does "free" apply to production hosting, or to build and evaluation only? | Build and evaluation only |
+| OQ-0-02 | Is Android-only field capture acceptable? | No. iOS is required; the Apple fee is accepted |
+| OQ-0-03 | Which host is acceptable for India-resident data? | A paid in-region host is accepted; production stays on the managed profile in India |
 
 ---
 

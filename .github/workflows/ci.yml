@@ -83,7 +83,11 @@ jobs:
           test -f infra/migrations/003_ops_provisioning_run.sql
           test -f infra/migrations/004_production_and_budgeting.sql
           test -f infra/migrations/005_vendors_and_expenses.sql
-          echo "Verified migration files present."
+          test -f infra/migrations/006_audit_operations.sql
+          test -f infra/migrations/007_intelligence_and_alerts.sql
+          test -f infra/migrations/008_documents_and_evidence.sql
+          test -f infra/migrations/009_excel_engine.sql
+          echo "Verified all 9 migration files present."
 
       - name: Verify Row Level Security Policies
         run: node ./scripts/verify-rls.js

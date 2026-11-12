@@ -43,7 +43,7 @@ One place to answer three questions: what has been decided and where it is justi
 
 ## 3. Architecture Decision Register
 
-All 68 ADRs, ADR-001 to ADR-068, are defined. Four are provisional: ADR-013 (mobile framework, gate G-02), ADR-015 (cloud runtime, gate G-01), ADR-025 (show hosting topology, decision OD-01) and ADR-068 (zero-cost deployment profile, constraint C-01).
+All 68 ADRs, ADR-001 to ADR-068, are defined. Three are provisional: ADR-013 (mobile framework, gate G-02), ADR-015 (cloud runtime, gate G-01) and ADR-025 (show hosting topology, decision OD-01). ADR-068 (zero-cost profile for build and evaluation, constraint C-01) was accepted by the business owner on 2026-11-12.
 
 | ADR | Decision | Owner | Status |
 |-----|----------|-------|--------|
@@ -114,7 +114,7 @@ All 68 ADRs, ADR-001 to ADR-068, are defined. Four are provisional: ADR-013 (mob
 | ADR-065 | Dedicated Enterprise Deployment as a Cell of the Same Release | Document 15 §23 | Proposed |
 | ADR-066 | Catalogue-Generated Test Suites for Routes, Policies, and State Machines | Document 16 §13 | Approved |
 | ADR-067 | Strict Synthetic Production-Shaped Test Data Only (Zero Production Data in Non-Prod) | Document 16 §13 | Approved |
-| ADR-068 | Zero-cost deployment profile (Docker Compose, open-source substitutes) alongside the managed profile | Document 0 §8.5 | Provisional |
+| ADR-068 | Zero-cost profile (Docker Compose, open-source substitutes) for build and evaluation; managed profile for production | Document 0 §8.5 | Accepted |
 
 ## 4. Decisions Required Before Build or Production
 
@@ -132,7 +132,7 @@ These items block a named milestone. Everything else in section 6 can be resolve
 | G-03 | Retention and legal-hold policy | Pilot | Compliance, Legal | 7-year default (D-014), longer by jurisdiction |
 | G-04 | Penetration-test scope and vendor | Pilot entry | Security & Compliance | Book at M4 start |
 | G-06 | Support impersonation model | Pilot | Security & Compliance | Break-glass only, two approvers, 8-hour bound (BR-ACC-008) |
-| C-01 | Zero-cost build and deployment: scope (production or evaluation), Android-only capture, free host for India data (OQ-0-01 to OQ-0-03) | Infrastructure profile (Phase 0) | Business owner | Adopt ADR-068: free profile for build, evaluation and small tenants; managed profile for production tenants needing NFR-AVL |
+| C-01 | Zero-cost build and deployment — **closed 2026-11-12**: free for build and evaluation only; iOS required (Apple fee accepted); paid in-region hosting for India data accepted | Infrastructure profile (Phase 0) | Business owner | ADR-068 accepted |
 | — | CERT-In six-hour reporting and 180-day log retention applicability | Production in India | Legal | Treat as applicable; Document 10 already designs for it |
 
 ## 5. Risk Register

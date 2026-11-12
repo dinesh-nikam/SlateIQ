@@ -77,5 +77,9 @@ app.MapProductionEndpoints();
 app.MapBudgetEndpoints();
 app.MapVendorEndpoints();
 app.MapExpenseEndpoints();
+app.MapAuditEndpoints();
+app.MapAnalyticsEndpoints();
+app.MapDocumentEndpoints();
+app.MapExcelEndpoints();
 
 app.Run();
