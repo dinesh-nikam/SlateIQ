@@ -265,7 +265,7 @@ Section 4 specifies each module with the same fourteen attributes the brief requ
 | Business rules | BR-VND-001 to BR-VND-007, BR-FIN-006, FR-VND-017 |
 | Permissions | `vendor.*` |
 | APIs | Vendors, tax registrations, contacts, bank references, risk ratings, commitments, purchase orders (P1), payment references (Document 9 §4.4) |
-| Tables | `vendor.vendor`, `vendor_tax_registration`, `vendor_contact`, `vendor_bank_reference`, `manual_commitment`, `commitment_amendment`, `purchase_order`, `purchase_order_line`, `po_receipt`, `payment_reference`; requested `vendor.approval_instance`, `vendor.approval_decision` (RC-7-04) |
+| Tables | `vendor.vendor`, `vendor_tax_registration`, `vendor_contact`, `vendor_bank_reference`, `manual_commitment`, `commitment_amendment`, `purchase_order`, `purchase_order_line`, `po_receipt`, `payment_reference`; commitment approvals are stored in `budget.approval_instance`, `budget.approval_step`, `budget.approval_decision` through the Budget approval contract (RC-7-04 resolved by Document 8 RC-08-01) |
 | Transactions | T1. Commitment submission locks its FX snapshot and stores the resolved chain in one transaction |
 | Events published | `VendorBlocked`, `VendorStatusChanged` **(new)**, `CommitmentCreated`, `CommitmentApproved` **(new**: becomes `OPEN`**)**, `CommitmentAmended`, `CommitmentClosed` (payload `final_status` = `CLOSED`, `CANCELLED` or `EXPIRED`), `PurchaseOrderChanged` (P1), `ApprovalTaskAssigned` **(new)** |
 | Events consumed | `ShowCreated`, `ShowStatusChanged` (no new commitments on a closed show), organization events |
@@ -365,7 +365,7 @@ Section 4 specifies each module with the same fourteen attributes the brief requ
 | Business rules | BR-XLS-001 to BR-XLS-006, BR-EXP-016, FR-XLS-016, NFR-PERF-006 |
 | Permissions | `excel.*` plus the target domain's `create` key at commit (Document 3 Appendix A) |
 | APIs | Templates, imports and their lifecycle, preview, errors, commit, reversal, exports (Document 9 §4.9) |
-| Tables | `xls.excel_template`, `template_version`, `value_mapping`, `import_batch`, `import_row`, `export_job`; requested `xls.approval_instance`, `xls.approval_decision` (RC-7-04) |
+| Tables | `xls.excel_template`, `template_version`, `value_mapping`, `import_batch`, `import_row`, `export_job`; commit approvals are stored in `budget.approval_instance`, `budget.approval_step`, `budget.approval_decision` through the Budget approval contract (RC-7-04 resolved by Document 8 RC-08-01) |
 | Transactions | T5: each 1,000-row chunk commits target records (T3 into the owning module), row outcomes and a batch checkpoint in one transaction; the batch resumes from the checkpoint |
 | Events published | `ImportCommitted`, `ImportRejected`, `ExportCompleted`, `ImportValidated` **(new)**, `ImportReversed` **(new)**, `ExportFailed` **(new)**, `ApprovalTaskAssigned` **(new)** |
 | Events consumed | `DocumentScanned`, `DocumentQuarantined` (workbook intake) |

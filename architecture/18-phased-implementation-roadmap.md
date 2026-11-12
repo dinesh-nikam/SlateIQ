@@ -179,6 +179,7 @@ Predictive forecasting and anomaly detection after at least 12 months of clean h
 | G-04 | Penetration-test scope and vendor | Start of M4 | Security & Compliance | Document 6 §19.5 |
 | G-05 | DR exercise scheduled | M4 | SRE Lead | Document 6 §19.5 |
 | G-06 | Support impersonation model | Before pilot | Security & Compliance | Document 6 §19.5 |
+| C-01 | Zero-cost build and deployment constraint (ADR-068) | Phase 0 week 2 | Business owner | Document 0 §8 |
 | — | Business-owner validations of assumptions marked blocking in Documents 2, 5 and 13 (tax treatment, cash limit, cost types, audit report cadence) | Before the increment that implements them | Finance SME, Audit SME | Document 17 §5 |
 
 ---

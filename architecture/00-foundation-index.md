@@ -1,292 +1,344 @@
-# Document 0: Foundation Architecture Master Index & Governance Blueprint
+# Document 0: Foundation Index, Reconciliation Register & Quality Gate
 
-**Product:** SlateIQ — Production Cost Intelligence & Audit Monitoring Platform  
-**Document ID:** SLQ-ARCH-000  
-**Version:** 1.0.0 (Foundation Baseline)  
-**Classification:** Internal — Architecture Foundation  
-**Status:** Approved — Architecture Foundation Baseline  
-**Date:** 2026-11-06  
-**Authors:** Principal Enterprise Solution Architect, Lead System Architect  
-**Reviewers:** Executive Sponsor (TBD), Delivery Lead (TBD), Engineering Leadership (TBD)  
-
----
-
-## Document Control
-
-### Revision History
-
-| Version | Date | Author | Change |
-|---------|------|--------|--------|
-| 1.0.0 | 2026-11-06 | Architecture Leadership | Master Foundation Architecture Index and Governance Blueprint. Unifies all 18 architecture deliverables into an internally consistent enterprise specification; defines stakeholder reading paths; maps canonical domain terminology; provides master traceability across FR, NFR, BR, CAP, SM, WF, ADR, and TS identifiers; certifies formal passage through the Architecture Quality Gate (§26). |
-
-### Master Deliverables Register
-
-| Doc # | Document ID | File Name | Document Title & Scope | Status | Authority |
-|:-----:|-------------|-----------|------------------------|:------:|-----------|
-| **00** | SLQ-ARCH-000 | `00-foundation-index.md` | **Foundation Architecture Master Index & Governance** | Approved | Master Index & Quality Gate |
-| **01** | SLQ-ARCH-001 | `01-product-vision-business-requirements.md` | **Product Vision & Business Requirements** | Published | FR, NFR, BR, Scope, Pilots |
-| **02** | SLQ-ARCH-002 | `02-domain-model-business-capabilities.md` | **Domain Model & Business Capabilities** | Published | Entities, Contexts, CAP-001..026 |
-| **03** | SLQ-ARCH-003 | `03-actor-permission-architecture.md` | **Actor, Permission, Tenancy & Identity** | Published | Roles, Scopes, RLS, Grants, SoD |
-| **04** | SLQ-ARCH-004 | `04-workflows-state-machines.md` | **Core Business Workflows & State Machines** | Published | SM-01..19, WF-01..20 |
-| **05** | SLQ-ARCH-005 | `05-business-rules-invariants.md` | **Business Rules & Invariants Catalogue** | Published | INV-001.., POL-001.. Policies |
-| **06** | SLQ-ARCH-006 | `06-high-level-solution-architecture.md` | **High-Level Solution Architecture** | Published | Modular Monolith, Stack, ADR-001..015 |
-| **07** | SLQ-ARCH-007 | `07-module-dependency-architecture.md` | **Module & Dependency Architecture** | Published | Boundaries, Contracts, ADR-032..034 |
-| **08** | SLQ-ARCH-008 | `08-database-conceptual-model-erd.md` | **Database Conceptual Model & Initial ERD** | Published | 15 Schemas, Tables, ADR-035..039 |
-| **09** | SLQ-ARCH-009 | `09-api-architecture-endpoint-catalogue.md` | **API Architecture & Endpoint Catalogue** | Published | REST, Problems, Cursors, ADR-040..043 |
-| **10** | SLQ-ARCH-010 | `10-security-architecture.md` | **Security Architecture** | Published | Defense-in-Depth, Crypto, ADR-044..047 |
-| **11** | SLQ-ARCH-011 | `11-mobile-offline-architecture.md` | **Mobile & Offline Architecture** | Published | React Native, SQLite, ADR-048..051 |
-| **12** | SLQ-ARCH-012 | `12-excel-integration-architecture.md` | **Excel Integration Architecture** | Published | Ingestion, Reversals, ADR-052..054 |
-| **13** | SLQ-ARCH-013 | `13-analytics-cost-calculation.md` | **Analytics & Cost Calculation Architecture** | Published | Ledgers, Variances, ADR-055..058 |
-| **14** | SLQ-ARCH-014 | `14-audit-observability-architecture.md` | **Audit & Observability Architecture** | Published | Hash Chains, Telemetry, ADR-059..061 |
-| **15** | SLQ-ARCH-015 | `15-infrastructure-deployment-architecture.md` | **Infrastructure & Deployment Architecture** | Published | ECS Fargate, Terraform, ADR-062..065 |
-| **16** | SLQ-ARCH-016 | `16-testing-strategy.md` | **Testing Strategy** | Published | Critical Scenarios TS-01..42, ADR-066..067 |
-| **17** | SLQ-ARCH-017 | `17-risk-register-adrs.md` | **Risk Register & Architecture Decision Records** | Published | Consolidated ADRs & Enterprise Risks |
-| **18** | SLQ-ARCH-018 | `18-phased-implementation-roadmap.md` | **Phased Implementation Roadmap** | Published | Phase 0 to Phase 3 Implementation Plan |
+**Product:** SlateIQ — Production Cost Intelligence & Audit Monitoring Platform
+**Document ID:** SLQ-ARCH-000
+**Version:** 1.1.0
+**Supersedes:** 1.0.0, archived at `_archive/00-foundation-index.v1.0.0-unverified.md` (it declared the set approved and the quality gate passed while five documents were unfinished)
+**Classification:** Internal — Architecture Foundation
+**Status:** Draft — For Review
+**Date:** 2026-11-12
+**Authors:** Principal Enterprise Solution Architect
 
 ---
 
-## 1. Executive Summary & Blueprint Architecture
+## 1. How to Use This Set
 
-### 1.1 Product Mission
-**SlateIQ** is an enterprise-grade Production Cost Intelligence & Audit Monitoring Platform designed specifically for OTT streaming platforms, television broadcasters, film studios, independent production houses, and production audit firms. 
+The set answers the governing brief (`_reference/governing-architecture-brief.md`) with its eighteen deliverables. Start here, then read in this order for each audience.
 
-Operating under the tagline **"Intelligence Behind Every Production,"** SlateIQ bridges the critical operational divide between on-ground production crews capturing daily expenses and executive leadership monitoring multi-show portfolio budgets. It eliminates opaque, delayed fortnightly reporting, standardizes audit categorizations, prevents budget overruns before they compound, and guarantees cryptographic non-repudiation of financial audit ledgers.
+| Reader | Path |
+|--------|------|
+| Executive sponsor, product owner | 1 → 2 §2 → 18 → 17 §4 → §8 below |
+| Backend engineer | 2 → 3 §5–§7 → 4 → 5 → 7 → 8 → 9 |
+| Web engineer | 2 → 3 §5.13 → 7 (client structure) → 9 → 13 (dashboards) |
+| Mobile engineer | 2 → 3 §4 → 11 → 9 (sync) |
+| Data and BI engineer | 2 → 8 → 13 → 12 |
+| Security, compliance, audit | 3 → 10 → 14 → 5 |
+| SRE and DevOps | 6 → 15 → §8 below → 14 → 16 |
+| QA | 4 → 5 → 16 |
 
-```mermaid
-flowchart TB
-    subgraph CLIENTS["Multi-Channel Client Surface"]
-        direction LR
-        WEB["Responsive Web App<br/>(React + Vite)"]
-        MOB["Auditor Mobile App<br/>(React Native + Expo)"]
-        XLS["Excel Ingestion / Export<br/>(OpenXML Engine)"]
-    end
+## 2. The Document Set
 
-    subgraph EDGE["Edge & API Gateway"]
-        CDN["CloudFront / Edge TLS 1.3"]
-        WAF["AWS WAF + Rate Limiting"]
-    end
+### 2.1 Current Set (decision D-023)
 
-    subgraph BACKEND["Modular Monolith (.NET 10 LTS)"]
-        direction TB
-        API_H["Public API Host"]
-        SYNC_H["Sync Service Host"]
-        WORKER_H["Outbox Worker Host"]
-        OPS_H["Internal Ops Host"]
-        
-        subgraph MODULES["15 Encapsulated Domain Modules"]
-            direction LR
-            M_TNT["Tenancy & Identity"]
-            M_PRD["Production & Shows"]
-            M_BUD["Budget & Periods"]
-            M_EXP["Expense & Costing"]
-            M_AUD["Audit & Evidence"]
-            M_INT["Intelligence & BI"]
-        end
-    end
+| No | File | Document | ID | Lines | Status |
+|----|------|----------|----|-------|--------|
+| 0 | `00-foundation-index.md` | Foundation index, reconciliation register, quality gate | SLQ-ARCH-000 | — | Draft |
+| 1 | `01-product-vision-business-requirements.md` | Product Vision & Business Requirements (v1.1.1) | SLQ-ARCH-001 | 2,909 | Draft — for review |
+| 2 | `02-domain-model-business-capabilities.md` | Domain Model & Business Capability Map (v2.0.0) | SLQ-ARCH-002 | 604 | Draft — for review |
+| 3 | `03-actor-permission-architecture.md` | Actor, Permission, Tenancy & Identity Architecture | SLQ-ARCH-003 | 5,416 | Draft — for review |
+| 4 | `04-workflows-state-machines.md` | Core Business Workflows & State Machines | SLQ-ARCH-004 | 1,609 | Draft — for review |
+| 5 | `05-business-rules-invariants.md` | Business Rules & Invariants Catalogue | SLQ-ARCH-005 | 729 | Draft — for review |
+| 6 | `06-high-level-solution-architecture.md` | High-Level Solution Architecture (published 2026-11-05 as Document 3) | SLQ-ARCH-006 | 3,493 | Draft — for review |
+| 7 | `07-module-dependency-architecture.md` | Module & Dependency Architecture | SLQ-ARCH-007 | 1,247 | Draft — for review |
+| 8 | `08-database-conceptual-model-erd.md` | Database Conceptual Model & ERD | SLQ-ARCH-008 | 1,416 | Draft — for review |
+| 9 | `09-api-architecture-endpoint-catalogue.md` | API Architecture & Endpoint Catalogue | SLQ-ARCH-009 | 1,546 | Draft — for review |
+| 10 | `10-security-architecture.md` | Security Architecture | SLQ-ARCH-010 | 993 | Draft — for review |
+| 11 | `11-mobile-offline-architecture.md` | Mobile & Offline Architecture | SLQ-ARCH-011 | 1,031 | Draft — for review |
+| 12 | `12-excel-integration-architecture.md` | Excel Integration Architecture | SLQ-ARCH-012 | 1,057 | Draft — for review |
+| 13 | `13-analytics-cost-calculation.md` | Analytics & Cost Calculation Architecture | SLQ-ARCH-013 | 795 | Draft — for review |
+| 14 | `14-audit-observability-architecture.md` | Audit & Observability Architecture | SLQ-ARCH-014 | 900 | Draft — for review |
+| 15 | `15-infrastructure-deployment-architecture.md` | Infrastructure & Deployment Architecture | SLQ-ARCH-015 | 1,623 | Draft — for review |
+| 16 | `16-testing-strategy.md` | Testing Strategy | SLQ-ARCH-016 | 714 | Draft — for review |
+| 17 | `17-risk-register-adrs.md` | Risk Register & Architecture Decision Records (generated registers) | SLQ-ARCH-017 | 401 | Draft — for review |
+| 18 | `18-phased-implementation-roadmap.md` | Phased Implementation Roadmap | SLQ-ARCH-018 | 236 | Draft — for review |
 
-    subgraph DATA["Data & Storage Infrastructure"]
-        direction LR
-        PG[("PostgreSQL 17<br/>Multi-Tenant RLS")]
-        REDIS[("Redis 7.4<br/>Cache & Denylist")]
-        S3[("S3 Object Store<br/>Object-Locked Evidence")]
-    end
+Supporting folders: `_reference/` (governing brief), `_archive/` (every superseded file; the folder is the rollback path), `_build/` (assembly segments of Document 3 and the authoring brief used for Documents 4–16), `mermaid-diagrams/` (version 1.0.0 diagrams of the first draft; superseded by the diagrams embedded in the documents).
 
-    CLIENTS --> CDN --> WAF
-    WAF --> API_H & SYNC_H
-    API_H & SYNC_H & WORKER_H & OPS_H --> MODULES
-    MODULES --> PG & REDIS & S3
-```
+### 2.2 Superseded Numbering
 
-### 1.2 Core Architectural Decisions
-1. **Modular Monolith Architecture (ADR-001):** Single, unified C# / .NET 10 LTS codebase deployed as specialized host profiles (API, Sync, Worker, Ops) from one container image (ADR-063), eliminating microservice distributed transaction overhead while maintaining strict module isolation.
-2. **Shared Database with Row-Level Security (ADR-002, ADR-035):** PostgreSQL 17 engine with enforced multi-tenant Row-Level Security (`FORCE ROW LEVEL SECURITY`) keyed on mandatory `org_id` on every tenant table.
-3. **Offline-First Auditor Mobile Client (ADR-013, ADR-048):** React Native client backed by local encrypted `SQLCipher` storage, supporting up to 7 days and 500 expenses of offline capture with resumable chunked photo uploads (ADR-051).
-4. **Excel-First Integration Parity (ADR-011, ADR-052):** First-class spreadsheet parsing and generation sharing 100% of the domain validation engine with the interactive web and mobile interfaces.
-5. **In-Transaction Cryptographic Audit Chaining (ADR-012, ADR-060):** Immutable business audit events linked in-transaction via SHA-256 hash chains, providing tamper-evident forensic guarantees.
-6. **Strict Geographic Data Residency (ADR-009, ADR-062):** Total physical containment within the tenant's chosen legal region (`ap-south-1` for India, `eu-central-1` for Europe) enforced via AWS account boundaries and Service Control Policies.
+Documents 1, 3 and 6 were written when an earlier document list (Document 1 Appendix D) was in force. Text inside them may use the old numbers. Read them with this map.
 
----
+| Old number and title | Current document |
+|----------------------|------------------|
+| 3 System Architecture & Technology Stack | 6 |
+| 4 Multi-Tenancy & Identity Architecture | 3 |
+| 5 Data Architecture & Database Design | 8 |
+| 6 API & Integration Architecture | 9 |
+| 7 Security & Compliance Architecture | 10 |
+| 8 Production & Budget Domain Design | 4 (with 5 and 13) |
+| 9 Expense Capture & Offline Sync Design | 11 (with 4) |
+| 10 Cost Intelligence & Analytics Design | 13 |
+| 11 Document & Evidence Management Design | 10 (storage, scanning) and 4 (lifecycle) |
+| 12 Excel Import/Export Design | 12 |
+| 13 Notification & Alerting Design | 7 (asynchronous catalogue) and 4 (SM-18) |
+| 14 Audit Trail, Retention & Legal Hold | 14 |
+| 15 Mobile Application Architecture | 11 |
+| 16 Frontend & UX Architecture | 7 (client structure) |
+| 17 Deployment, Operations & Observability | 15 and 14 |
+| 18 Implementation Roadmap | 18 |
 
-## 2. Master Reading Guide by Stakeholder
+### 2.3 Required Diagrams
 
-The SlateIQ architecture foundation spans 18 comprehensive deliverables. Different technical and executive roles should navigate the documentation following these prioritized learning paths:
+| Brief diagram | Location |
+|---------------|----------|
+| 1 Business context | §3.1 below; Document 1 §4.4 stakeholder map |
+| 2 System context | §3.2 below |
+| 3 High-level solution architecture | §3.3 below; Document 6 §3 (text diagrams) |
+| 4 Module dependency | Document 7; Document 2 §3 context map |
+| 5 Entity relationship | Document 8 (eight schema ERDs); Document 2 §8 conceptual ERD |
+| 6 Tenant isolation model | Document 8; Document 10 |
+| 7 Expense submission workflow | Document 4 |
+| 8 Audit approval workflow | Document 4 |
+| 9 Cost-overrun detection | Document 4; Document 13 projection pipeline |
+| 10 Mobile offline synchronisation | Document 11 |
+| 11 Excel import workflow | Document 12 |
+| 12 Deployment architecture | Document 15; zero-cost profile in §8.4 below |
 
-```mermaid
-flowchart TD
-    EXEC["Executive Sponsor / Product Owner"] --> P_EXEC["Path: Docs 00, 01, 17, 18"]
-    BACKEND["Backend & Platform Engineers"] --> P_BACK["Path: Docs 00, 02, 06, 07, 08, 09, 15"]
-    MOBILE["Mobile & UI Engineers"] --> P_MOB["Path: Docs 00, 09, 11, 04, 16"]
-    DATA_ENG["Database Administrators"] --> P_DBA["Path: Docs 00, 08, 03, 13, 15"]
-    SEC_LEAD["Security & Compliance Leads"] --> P_SEC["Path: Docs 00, 03, 10, 14, 17"]
-    QA_LEAD["Quality & Test Engineers"] --> P_QA["Path: Docs 00, 16, 04, 05, 12, 13"]
-```
+All 59 Mermaid diagrams in Documents 0 to 18 parse without error with Mermaid 11.4.1 (checked 2026-11-12).
 
-### 2.1 Reading Sequences
+## 3. Context and Solution Diagrams
 
-| Stakeholder Role | Priority 1 (Foundation) | Priority 2 (Deep Dive) | Priority 3 (Operations) | Key Focus Areas |
-|------------------|-------------------------|------------------------|-------------------------|-----------------|
-| **Executive Leadership** | Doc 00, Doc 01 | Doc 17, Doc 18 | Doc 06 | Business capabilities, pilot milestones, enterprise risks, commercial gates |
-| **Backend Engineers** | Doc 06, Doc 07 | Doc 08, Doc 09 | Doc 04, Doc 14, Doc 15 | Module boundaries, EF Core/Dapper persistence, REST contracts, outbox jobs |
-| **Mobile Engineers** | Doc 11, Doc 09 | Doc 04, Doc 16 | Doc 03, Doc 10 | SQLite schema, sync conflict matrix, offline limits, photo compression |
-| **Database Administrators** | Doc 08, Doc 03 | Doc 13, Doc 15 | Doc 16 | RLS policies, indexing, keyset pagination, table partitioning, DR drills |
-| **Security & Compliance** | Doc 03, Doc 10 | Doc 14, Doc 17 | Doc 08, Doc 15 | RBAC permissions, SoD matrix, KMS keys, hash chaining, penetration testing |
-| **QA & Test Engineers** | Doc 16, Doc 04 | Doc 05, Doc 12 | Doc 13, Doc 09 | Critical scenarios TS-01..42, state guards, golden datasets, generated suites |
-| **Financial SMEs** | Doc 01, Doc 05 | Doc 12, Doc 13 | Doc 04 | Half-up rounding, cost posting reversals, period close, Excel templates |
-
----
-
-## 3. Canonical Domain Vocabulary & Architectural Standards
-
-To ensure complete conceptual coherence across engineering teams, all codebase symbols, database schemas, and API contracts must adhere to the canonical vocabulary established in Documents 02, 03, and 04.
-
-### 3.1 Canonical System Roles (18)
-
-| Role Code | Category | Core Responsibilities & Hard Boundaries |
-|-----------|----------|----------------------------------------|
-| `ORG_ADMIN` | Tenant Admin | Manages organization settings, user invitations, and tenant-wide configurations. |
-| `COMMISSIONING_ADMIN` | Platform Admin | Manages show commissioning, high-level approvals, and broadcaster oversight. |
-| `PRODUCTION_ADMIN` | Production Lead | Administers show setup, crew allocation, and production house operations. |
-| `FINANCE_HEAD` | Financial Control | Approves budget baselines, sets financial periods, and exercises top-tier approval authority. |
-| `COST_CONTROLLER` | Financial Control | Day-to-day budget tracking, commitment management, and variance monitoring. |
-| `DEPARTMENT_HEAD` | Production Crew | Manages department-specific expenses and first-level crew expense approvals. |
-| `ACCOUNTS_EXECUTIVE` | Financial Control | Verifies vendor invoices, tax deductions, and initiates expense payments. |
-| `AUDIT_MANAGER` | Audit Leadership | Oversees audit assignments, reviews findings, and accepts finalized audit reports. |
-| `INTERNAL_AUDITOR` | On-Ground Audit | Captures daily field expenses, performs on-set verifications, and inspects receipts. |
-| `MANAGEMENT_VIEWER` | Read-Only Viewer | Read-only executive access to cross-show portfolio dashboards and variance trends. |
-| `PRODUCTION_COORDINATOR`| Production Crew | On-ground logistical expense logging and vendor purchase order coordination. |
-| `VENDOR_COORDINATOR` | Production Crew | Vendor registration, compliance document gathering, and contract management. |
-| `COMPLIANCE_OFFICER` | Compliance & Risk | Reviews SoD exceptions, verifies cryptographic audit logs, and monitors legal holds. |
-| `ACCESS_REVIEWER` | Identity Admin | Performs mandatory quarterly access reviews and validates role allocations. |
-| `AUDIT_FIRM_ADMIN` | External Partner | Administers external independent audit firm engagements and team allocations. |
-| `SUPPORT_ENGINEER` | Platform Operations| Tier-2 operational support; strictly zero access to financial or document content. |
-| `PLATFORM_OPERATIONS` | Platform Operations| Cloud infrastructure management, database migrations, and operational telemetry. |
-| `PLATFORM_SECURITY` | Platform Operations| Security incident response, KMS key rotation, and audit log tamper investigations. |
-
-*Note on External Auditors:* External auditors hold no permanent system role. They operate strictly under temporary, scoped **Grants** with one of three profiles: `AUDIT_READ`, `AUDIT_EVIDENCE`, or `AUDIT_FINANCE` (Document 3 §8).
-
-### 3.2 Canonical Scope Hierarchy (7)
-
-All permissions in SlateIQ are evaluated within one of seven strictly nested hierarchical scopes:
-
-$$	ext{ORG} \supset 	ext{SHOW} \supset 	ext{SEASON} \supset 	ext{EPISODE} \supset 	ext{DEPARTMENT} \supset 	ext{ASSIGNMENT} \supset 	ext{SELF}$$
-
-### 3.3 State Machines (SM-01 to SM-19)
-
-| SM # | Target Entity | Valid State Set | Authority Document |
-|:----:|---------------|-----------------|--------------------|
-| **SM-01** | Organization (Tenant) | `PROVISIONING`, `PROVISIONING_FAILED`, `ACTIVE`, `SUSPENDED`, `ARCHIVED`, `PENDING_DELETION`, `PURGING`, `PURGED` | Document 3 §2.5 |
-| **SM-02** | Show | `PLANNING`, `ACTIVE`, `COMPLETED`, `CLOSING`, `CLOSED`, `ARCHIVED`, `CANCELLED` | Document 4 §4.2 |
-| **SM-03** | Budget Container | `NOT_BASELINED`, `BASELINED`, `REVISION_IN_PROGRESS`, `FROZEN` | Document 4 §4.3 |
-| **SM-04** | Budget Version | `DRAFT`, `SUBMITTED`, `CHANGES_REQUESTED`, `ACTIVE`, `SUPERSEDED`, `REJECTED`, `WITHDRAWN` | Document 4 §4.4 |
-| **SM-05** | Financial Period | `OPEN`, `CLOSING`, `LOCKED`, `REOPENED` | Document 4 §4.5 |
-| **SM-06** | Vendor | `CANDIDATE`, `ACTIVE`, `INACTIVE`, `BLOCKED`, `REJECTED`, `MERGED` | Document 4 §4.6 |
-| **SM-07** | Manual Commitment | `DRAFT`, `PENDING_APPROVAL`, `OPEN`, `CLOSED`, `CANCELLED`, `EXPIRED` | Document 4 §4.7 |
-| **SM-08** | Audit Assignment | `PLANNED`, `ACTIVE`, `SUSPENDED`, `COMPLETED`, `REVOKED`, `HANDED_OVER` | Document 4 §4.8 |
-| **SM-09** | Expense Revision | `DRAFT`, `SUBMITTED`, `REQUIRES_INFO`, `APPROVED`, `REJECTED`, `CANCELLED`, `SUPERSEDED` | Document 4 §4.9 |
-| **SM-10** | Audit Report | `DRAFT`, `SUBMITTED`, `RETURNED`, `ACCEPTED`, `SUPERSEDED` | Document 4 §4.10 |
-| **SM-11** | Audit Finding | `DRAFT`, `OPEN`, `RESPONDED`, `CLOSED`, `ESCALATED`, `WITHDRAWN` | Document 4 §4.11 |
-| **SM-12** | Document & Evidence | Document: `UPLOAD_PENDING`, `PENDING_SCAN`, `AVAILABLE`, `QUARANTINED`, `SCAN_FAILED`, `SOFT_DELETED`, `PURGED`. Evidence: `UNVERIFIED`, `VERIFIED`, `DISPUTED` | Document 4 §4.12 |
-| **SM-13** | Approval Instance | Instance: `PENDING`, `IN_PROGRESS`, `INFO_REQUESTED`, `APPROVED`, `REJECTED`, `CANCELLED`. Step: `WAITING`, `ACTIVE`, `APPROVED`, `REJECTED`, `SKIPPED` | Document 4 §4.13 |
-| **SM-14** | Show Closure | `REQUESTED`, `BLOCKED`, `READY`, `APPROVED`, `REJECTED`, `WITHDRAWN` | Document 4 §4.14 |
-| **SM-15** | Expense Exception | `OPEN`, `ACKNOWLEDGED`, `RESOLVED`, `FALSE_POSITIVE`, `WAIVED` | Document 4 §4.15 |
-| **SM-16** | Alert Instance | `TRIGGERED`, `ACKNOWLEDGED`, `RESOLVED`, `FALSE_POSITIVE`, `ESCALATED` | Document 4 §4.16 |
-| **SM-17** | Import Batch | `UPLOADED`, `SCANNING`, `PARSING`, `VALIDATING`, `VALIDATED`, `AWAITING_COMMIT_APPROVAL`, `COMMITTING`, `COMMITTED`, `PARTIALLY_COMMITTED`, `REJECTED`, `FAILED`, `EXPIRED`, `REVERSAL_PENDING`, `REVERSED` | Document 4 §4.17 |
-| **SM-18** | Notification | `QUEUED`, `SENDING`, `SENT`, `DELIVERED`, `READ`, `BOUNCED`, `FAILED`, `DEAD`, `SUPPRESSED` | Document 4 §4.18 |
-| **SM-19** | Outbox Job | `PENDING`, `PROCESSING`, `SUCCEEDED`, `FAILED`, `DEAD`, `CANCELLED` | Document 4 §4.19 |
-
-### 3.4 Database Schemas & Ownership (15)
-
-The relational database is partitioned into 15 domain-specific PostgreSQL schemas (Document 8):
-`tenancy`, `identity`, `prod`, `budget`, `vendor`, `auditops`, `expense`, `intel`, `docs`, `xls`, `notify`, `compliance`, `report`, `sync`, `ops`, and `ref`.
-
----
-
-## 4. Master Cross-Document Traceability Matrix
-
-The following index establishes exhaustive cross-document traceability from top-level business requirements down to engineering specifications, decision records, and release verification gates:
+### 3.1 Business Context
 
 ```mermaid
 flowchart LR
-    FR["Business Requirements (Doc 01)<br/>FR-nn, NFR-nn, BR-nn"] --> DOMAIN["Domain & Workflows (Docs 02-05)<br/>CAP-nn, SM-nn, WF-nn, INV-nn"]
-    DOMAIN --> ARCH["Technical Architecture (Docs 06-15)<br/>ADR-001..065, SC-nn"]
-    ARCH --> TEST["Release Verification (Docs 16-18)<br/>TS-01..42, G1..12 Gates"]
+    OTT["OTT platform or broadcaster (commissioner)"]
+    PH["Production house"]
+    FIRM["Independent audit firm"]
+    VEND["Vendors and suppliers"]
+    MGMT["Management and finance leadership"]
+    SIQ["SlateIQ"]
+    OTT -->|"commissions show, approves budget, appoints auditors"| SIQ
+    PH -->|"budgets, commitments, expenses, evidence, Excel"| SIQ
+    FIRM -->|"scoped review, findings, audit reports through grants"| SIQ
+    VEND -->|"bills and invoices captured as evidence"| PH
+    SIQ -->|"variance, alerts, dashboards, exports"| MGMT
+    SIQ -->|"findings and responses"| PH
 ```
 
-| Business Requirement | Domain Capabilities & Workflows | Technical ADRs | Release Verification Gate |
-|----------------------|---------------------------------|----------------|---------------------------|
-| **FR-TNT-001..003** (Tenant Onboarding & Isolation) | CAP-001, SM-01, WF-01 | ADR-002, ADR-009, ADR-035, ADR-062 | TS-01, TS-02, TS-06 |
-| **FR-TNT-010..014** (Role & Scope Authorization) | CAP-003, SM-13, INV-004 | ADR-007, ADR-044, ADR-047, ADR-066 | TS-07, TS-12, E2E-01 |
-| **FR-TNT-015..018** (Cross-Tenant Grants & Audits) | CAP-004, WF-07, SOD-07 | ADR-002, ADR-025, ADR-044 | TS-01, TS-03, E2E-07 |
-| **FR-EXP-001..005** (Mobile Daily Cost Capture) | CAP-009, SM-09, WF-08 | ADR-013, ADR-048, ADR-049, ADR-051 | TS-29..TS-32, E2E-03 |
-| **FR-EXP-006..010** (Expense Approval & Postings) | CAP-010, SM-09, SM-13, WF-09 | ADR-003, ADR-037, ADR-055 | TS-09, TS-15, TS-16, TS-22 |
-| **FR-BUD-001..005** (Budget Baseline & Revision) | CAP-005, SM-03, SM-04, WF-03 | ADR-010, ADR-026, ADR-036 | TS-19, E2E-02 |
-| **FR-BUD-006..009** (Financial Period Cutoff) | CAP-006, SM-05, INV-007 | ADR-030, ADR-057 | TS-17, TS-27, E2E-09 |
-| **FR-XLS-001..006** (Excel Import & Reconciliation) | CAP-015, SM-17, WF-16 | ADR-011, ADR-052, ADR-053, ADR-054 | TS-33..TS-36, E2E-06 |
-| **FR-INT-001..005** (Cost Variance & Analytics) | CAP-013, CAP-014, WF-11 | ADR-004, ADR-010, ADR-056, ADR-058 | TS-14, TS-18, E2E-05 |
-| **NFR-SEC-001..004** (Enterprise Security & Crypto) | SC-01..25, SOD-01..10 | ADR-008, ADR-044, ADR-045, ADR-047 | TS-07, TS-08, TS-39 |
-| **NFR-AVL-006..007** (RTO ≤ 4 h, RPO ≤ 15 min) | DS-1..6 Recovery Procedures | ADR-064 | TS-42 |
-| **NFR-AUD-001..004** (Tamper-Proof Audit Logging) | CAP-017, WF-17 | ADR-012, ADR-059, ADR-060 | TS-37, TS-38, E2E-12 |
+### 3.2 System Context
+
+```mermaid
+flowchart TB
+    U1["Web users: finance, production, audit, management"]
+    U2["Field auditors on phones and tablets"]
+    OPS["SlateIQ platform operations"]
+    SIQ["SlateIQ platform (per region: India, EU)"]
+    MAIL["Email provider"]
+    FX["FX reference feed (ECB, OER)"]
+    SCAN["Malware scanning engine"]
+    ERP["ERP and BI systems (Phase 1)"]
+    IDP["Customer identity providers (Phase 1)"]
+    U1 -->|HTTPS| SIQ
+    U2 -->|"HTTPS sync, offline capable"| SIQ
+    OPS -->|"break-glass, provisioning"| SIQ
+    SIQ --> MAIL
+    FX --> SIQ
+    SIQ --> SCAN
+    SIQ -->|"exports, signed webhooks"| ERP
+    IDP -->|"OIDC, SAML, SCIM"| SIQ
+```
+
+### 3.3 High-Level Solution Architecture
+
+```mermaid
+flowchart TB
+    subgraph Clients
+        WEB["Web SPA: React 19, TanStack"]
+        MOB["Mobile: React Native, Expo, SQLCipher"]
+    end
+    subgraph Edge
+        CDN["CDN and WAF"]
+        LB["Load balancer or reverse proxy"]
+    end
+    subgraph App["One .NET 10 image, host profiles"]
+        API["API host"]
+        SYNC["Sync host"]
+        WRK["Worker host: outbox, jobs, projections"]
+        RND["Renderer host: PDF and XLSX"]
+        OPSH["Internal ops host"]
+    end
+    subgraph Data["Region-local data plane"]
+        PG[("PostgreSQL 17, RLS, schema per module")]
+        RD[("Redis-compatible cache")]
+        S3[("S3-compatible object storage")]
+        KMS["Key management and secrets"]
+    end
+    WEB --> CDN --> LB
+    MOB --> LB
+    LB --> API
+    LB --> SYNC
+    API --> PG
+    SYNC --> PG
+    WRK --> PG
+    RND --> PG
+    OPSH --> PG
+    API --> RD
+    API --> S3
+    WRK --> S3
+    RND --> S3
+    PG -. keys .- KMS
+    S3 -. keys .- KMS
+```
+
+## 4. Reconciliation Register
+
+Conflicts found between documents and how they are resolved. Unresolved notes are proposals awaiting the owning document's review.
+
+### 4.1 Resolved Across the Set
+
+| ID | Conflict | Resolution | Applied in |
+|----|----------|------------|------------|
+| RC-01 | Rounding half-even (Document 6 §8.3) versus half-up (BR-FIN-002) | Half-up at the defined rounding points; storage scale 4 | Documents 2, 5, 13 |
+| RC-02 | Cross-schema foreign keys (Document 3 §9.9) versus none (Document 6 §5.4) | Composite keys within a schema; no cross-schema keys; contract validation and nightly reconciliation | Documents 3 G-04, 8 ADR-035 |
+| RC-03 | Forecast owned by Intelligence (Document 6) or Budget (Document 3) | `budget.forecast`; Intelligence computes EFC | Documents 2 D2-19, 13 |
+| RC-04 | Delegation in Budget (Document 6) or Tenancy (Document 3) | `tenancy.delegation` | Documents 2, 3 |
+| RC-05 | Single `GrantCreated` event (Document 6 Appendix B) | Grant lifecycle events (Document 3 §12.8) | Document 3 D4-06 |
+| RC-7-04 / RC-08-01 | Approval instances per module or central | Non-expense approvals in `budget.approval_*`; expense approvals in `expense.approval_*` | Documents 3 Appendix D, 7, 8 |
+| RC-08-02 | Queue tables Family F versus A | Family A, written by `slateiq_app`; claimed by `slateiq_dispatch` | Documents 3 Appendix D, 8 |
+| G-05 | Cost Controller missing as a role | `COST_CONTROLLER` added (eighteen roles) | Document 3 |
+| — | Permission keys requested by Documents 9 and 10 | `notification.webhook.*` (Phase 1), `vendor.payment_term.administer` added to the catalogue | Document 3 Appendix A |
+
+### 4.2 Open Change Requests Against Published Documents
+
+| ID | Target | Change |
+|----|--------|--------|
+| D4-01 to D4-05 | Document 6, Document 1 | Session idle default, password wording, refresh lifetimes, region at MVP, seventh scope type (Document 3 Appendix G) |
+| D4-06 | Document 6 Appendix B | Grant lifecycle events |
+| D2-16 to D2-19 | Document 6 §5.1 | Audit reports and findings, cost posting ledger, show closure, forecast ownership |
+| CR-C01 | Documents 6 §6, 15, 18 | Zero-cost build and deployment profile (§8; ADR-068) |
+
+### 4.3 Reconciliation Notes Raised by Documents 4 to 15
+
+Each document lists its own notes with a proposed resolution: Document 4 (11), 5 (6), 7 (9), 8 (7), 9 (9), 10 (6), 11 (10), 12 (12), 13 (8), 14 (7), 15 (8). They are proposals; each is accepted or rejected at that document's review. None changes a binding ADR.
+
+## 5. Architecture Quality Gate (governing brief §26)
+
+| Check | Result | Evidence |
+|-------|--------|----------|
+| Business requirements understood | Pass | Document 1 (216 FR, 90 NFR, 83 BR) |
+| Domain entities identified | Pass | Document 2 §6 |
+| Entity relationships defined | Pass | Document 2 §8, Document 8 |
+| Actors and permissions defined | Pass | Document 3 §5, Appendix A (18 roles, 7 scopes) |
+| Tenant isolation designed | Pass | Document 3 §7, Document 8, Document 10 |
+| Business invariants documented | Pass | Document 5 (INV-001 to INV-035, 83 BR) |
+| Lifecycle state machines defined | Pass | Document 4 (SM-01 to SM-19) |
+| Core workflows documented | Pass | Document 4 (WF-01 to WF-21) |
+| Transaction boundaries defined | Pass | Documents 4, 6 §4.4, 8 |
+| Concurrency strategy defined | Pass | Document 8 (ADR-038), Document 9 (ETag) |
+| Idempotency strategy defined | Pass | Documents 9, 11, 12 |
+| Failure and recovery scenarios defined | Pass | Documents 4, 11, 15 |
+| Database strategy established | Pass | Document 8 |
+| API standards established | Pass | Document 9 |
+| Security architecture established | Pass | Documents 3, 10 |
+| Mobile offline strategy established | Pass | Document 11 |
+| Excel integration strategy established | Pass | Document 12 |
+| Financial calculations defined | Pass, pending validation | Document 13; tax and statutory items OQ-5-01, A2-04 await advisor review |
+| Audit history defined | Pass | Document 14 |
+| Observability defined | Pass | Document 14 |
+| Testing strategy defined | Pass | Document 16 (TS-01 to TS-42) |
+| Deployment architecture defined | Pass, with open constraint | Document 15 (paid managed cloud); zero-cost profile C-01 in §8 not yet reflected in Document 15 |
+| No critical architectural gaps remain | **Conditional** | See §6 |
+
+**Verdict.** The foundation is complete enough to start Phase 0 (Document 18 §5.1). It is **not** production-ready, and no document is yet approved: every document is a draft awaiting its named reviewers.
+
+## 6. Conditions Before Production Readiness
+
+1. Close the blocking decisions in Document 17 §4: G-01, G-02, OD-01, OQ-4-05, OQ-5-01, A2-04, OQ-13-01, G-03, G-04, G-06, the CERT-In applicability question, and the zero-cost constraint C-01 (ADR-068).
+2. Review and accept or reject the reconciliation notes of §4.3 and the change requests of §4.2.
+3. Obtain sign-off of every document from the reviewers named in its header.
+4. Pass the Document 16 pre-production scenarios and the Document 1 §17 pilot entry gate.
+
+## 7. Verification Performed (2026-11-12)
+
+| Check | Result |
+|-------|--------|
+| Mermaid syntax, all diagrams in Documents 0 to 18 | 59 of 59 parse (Mermaid 11.4.1) |
+| ADR coverage | ADR-001 to ADR-067 each defined exactly once in its owning document; ADR-068 defined in §8.5 |
+| Permission keys cited by Documents 4 to 16 | All present in Document 3 Appendix A after the two catalogue additions in §4.1; remaining checker hits are column, metric or event names, not permissions |
+| Table names cited | Present in Document 3 Appendix D after the additions of Document 8 RC-08-01; remaining hits are audit event names and configuration keys |
+| Superseded document titles in current text | None found in Documents 2, 4, 5, 7 to 18 |
+
+## 8. Constraint C-01: Zero-Cost Build and Deployment
+
+### 8.1 Statement
+
+Recorded 2026-11-12 from the business owner: the complete application must be buildable and deployable free of charge. Interpreted as: no paid software licences, no paid build service and a hosting option with no recurring charge, using the same code and container images as the paid production profile.
+
+### 8.2 Impact Analysis
+
+| Area | Current decision | Cost | Zero-cost equivalent | Change needed |
+|------|------------------|------|----------------------|---------------|
+| Backend, web, mobile code | .NET 10, React 19, React Native + Expo, PostgreSQL 17 (ADR-001, ADR-013) | Free, open source | Same | None |
+| Libraries | ExcelDataReader, OpenXML SDK, Playwright, Polly, Serilog, OpenTelemetry, xUnit, Testcontainers, k6 | Free, open source | Same | None |
+| Cache | Redis 7.4 managed | Paid hosting | Valkey (open-source Redis fork) in a container | Document 15 profile |
+| Object storage | Managed S3 with Object Lock | Paid | MinIO (S3 API, object locking) in a container | Document 15 profile |
+| Malware scanning | ClamAV | Free | Same | None |
+| Compute | ECS Fargate (ADR-015) | Paid | Docker Compose on one host: an always-free cloud VM tier or a customer-owned server | ADR-068 |
+| Database hosting | Managed PostgreSQL Multi-AZ | Paid | PostgreSQL 17 container with WAL archiving to MinIO and nightly `pg_dump` | Document 8 backup section for this profile |
+| Edge | CloudFront, WAF, ALB | Paid | Caddy reverse proxy with automatic Let's Encrypt TLS; application rate limiting (Document 10) remains | Document 15 profile |
+| Secrets and keys | Cloud KMS and secrets manager | Paid | Docker secrets plus envelope keys held in a file protected by host disk encryption | Document 10 note: weaker than KMS |
+| Email | SES | Paid at volume | SMTP adapter to any provider's free tier; Mailpit locally | Configuration only |
+| Telemetry | OpenTelemetry to managed backends | Paid | OpenTelemetry Collector with Prometheus, Loki, Tempo and Grafana containers, or logs only | Document 14 profile |
+| CI/CD | GitHub Actions (ADR-015) | Free for public repositories; limited free minutes for private | Same, within free minutes; self-hosted runner if exceeded | None |
+| Android distribution | Play Store | One-time developer fee | Direct APK or MDM side-loading | Document 11 note |
+| iOS distribution | App Store or TestFlight | Annual developer fee | **No free path to install on iPhones beyond a developer's own devices** | Business owner decision |
+
+### 8.3 What Zero Cost Cannot Provide
+
+These are not achievable without paid services and are disclosed rather than designed away:
+
+1. iOS distribution to field auditors (Apple developer programme fee).
+2. The availability, RTO and RPO targets of Document 1 NFR-AVL (99.5 percent, 4-hour RTO, 15-minute RPO) on a single free host; the zero-cost profile targets best-effort availability and a 24-hour RPO.
+3. Multi-AZ resilience, managed key custody and the Object Lock compliance mode used as audit evidence for SOC 2.
+4. Data residency guarantees beyond the region of the chosen free host.
+
+### 8.4 Zero-Cost Deployment Profile (Proposed)
+
+```mermaid
+flowchart TB
+    USERS["Web and mobile users"] -->|HTTPS| CADDY["Caddy reverse proxy, Let's Encrypt TLS"]
+    subgraph HOST["Single host: Docker Compose"]
+        CADDY --> APIH["API host container"]
+        CADDY --> SYNCH["Sync host container"]
+        WRKH["Worker host container"]
+        RNDH["Renderer host container"]
+        PGC[("PostgreSQL 17 container, RLS")]
+        VK[("Valkey container")]
+        MINIO[("MinIO container")]
+        CLAM["ClamAV container"]
+        OBS["OpenTelemetry Collector, Grafana stack (optional)"]
+        APIH --> PGC
+        SYNCH --> PGC
+        WRKH --> PGC
+        RNDH --> PGC
+        APIH --> VK
+        APIH --> MINIO
+        WRKH --> MINIO
+        WRKH --> CLAM
+    end
+    PGC -->|"nightly dump and WAL"| MINIO
+    MINIO -->|"off-host copy"| BACKUP["Second free storage location"]
+```
+
+### 8.5 ADR-068 — Zero-Cost Deployment Profile Alongside the Managed Profile (Provisional)
+
+| Field | Content |
+|-------|---------|
+| **Status** | Provisional — confirm with the business owner (gate C-01) |
+| **Context** | The business owner requires that the complete application can be built and deployed free of charge. The baseline (ADR-015) uses paid managed AWS services. |
+| **Decision** | Keep one codebase and one set of container images. Add a second deployment profile, "zero-cost", run by Docker Compose on a single host with open-source substitutes (Valkey, MinIO, Caddy, self-hosted PostgreSQL and telemetry). Every infrastructure dependency is reached through its standard protocol (PostgreSQL wire, Redis protocol, S3 API, SMTP, OTLP), so the application does not change between profiles. The managed profile (ADR-015) stays the recommended profile for paying production tenants. |
+| **Alternatives rejected** | Replace the managed profile entirely (loses the availability, residency and SOC 2 evidence commitments of Document 1); use proprietary free tiers with lock-in (they expire or change terms). |
+| **Consequences** | Document 15 gains a zero-cost profile section and a `docker-compose.zero-cost.yml`; Documents 8, 10 and 14 add profile notes for backups, key custody and telemetry; Document 16 runs the full suite against both profiles; iOS distribution and the NFR-AVL targets remain unavailable at zero cost (§8.3). |
+
+### 8.6 Open Items
+
+| ID | Question | Owner |
+|----|----------|-------|
+| OQ-0-01 | Does "free" apply to production hosting, or to build and evaluation only? | Business owner |
+| OQ-0-02 | Is Android-only field capture acceptable if iOS distribution must be free? | Business owner |
+| OQ-0-03 | Which free host is acceptable for India-resident data? | Business owner, Legal |
 
 ---
 
-## 5. Non-Negotiable Architectural Invariants
-
-Engineering teams are prohibited from bypassing, waiving, or altering the following foundational invariants:
-
-1. **Mandatory Tenant Key (`org_id`):** Every tenant-owned database table must include an immutable `org_id uuid not null` foreign key referencing `tenancy.organization(id)`. Table creation without `org_id` and forced RLS fails the automated migration pipeline (INV-004, ADR-035).
-2. **Fixed-Point Financial Arithmetic:** All monetary amounts are stored exclusively as `numeric(19,4)`. All exchange rates are stored as `numeric(19,6)`. Zero floating-point data types (`float`, `double`, `real`) are permitted in the codebase or database (INV-001, ADR-037).
-3. **Half-Up Away-From-Zero Rounding (RC-01):** All rounding operations across all modules and reports must use `MidpointRounding.AwayFromZero` applied strictly at defined rounding boundaries (line amount, tax amount, converted currency amount, report total) (BR-FIN-002).
-4. **Append-Only Cost Postings:** Actual production cost is derived exclusively by summing immutable rows in `expense.cost_posting`. Database triggers reject direct SQL `UPDATE` or `DELETE` commands. Expense amendments or cancellations generate compensating reversal rows in the current period (BR-FIN-005, BR-EXP-010).
-5. **Pre-Submission Approval Chain Binding:** The complete multi-tier approval chain for an expense is resolved and immutably persisted at the moment of submission. Mid-flight alterations to corporate approval policies do not retroactively modify pending approval instances (BR-EXP-007, SM-13).
-6. **No Production Data in Non-Prod (ADR-067):** Zero production database records, sanitised dumps, or real financial figures may ever be loaded into developer, CI, QA, or staging environments. All testing utilizes mathematically generated synthetic fixtures.
-7. **Scan-Before-Serve Gate (ADR-006, ADR-046):** No uploaded document or receipt attachment may be downloaded, viewed, or linked until an asynchronous malware scan transitions its status from `PENDING_SCAN` to `AVAILABLE`.
-
----
-
-## 6. Architecture Quality Gate Assessment (§26 Compliance Audit)
-
-Per Section 26 of the Master Governing Brief, the SlateIQ foundation architecture must pass an exhaustive quality audit before any engineering implementation begins. The assessment below evaluates the foundation against every required dimension:
-
-| Gate Dimension | Evaluation Summary | Governing Document | Gate Verdict |
-|----------------|-------------------|-------------------|:------------:|
-| **1. Business Requirements** | Complete business context, problem statement, FR/NFR catalog, pilot profiles, and acceptance gates defined. | Document 01 | **PASSED** |
-| **2. Entities Identified** | Comprehensive entity catalog across all 20 business areas with primary keys, relationships, and ownership. | Document 02, Doc 08 | **PASSED** |
-| **3. Relationships Defined** | Relational schemas, composite keys `(org_id, id)`, and decoupled cross-schema application boundaries defined. | Document 08 | **PASSED** |
-| **4. Actors & Permissions** | 18 system roles, 7 scopes, permission catalog (Appendix A), SoD matrix, and delegation limits fully specified. | Document 03 | **PASSED** |
-| **5. Tenant Isolation** | Defense-in-depth isolation via AWS accounts, PostgreSQL forced RLS, S3 prefix isolation, and Redis keyspacing. | Document 03, Doc 10, Doc 15 | **PASSED** |
-| **6. Invariants Documented** | Master catalog of non-negotiable invariants (INV-nnn) and configurable policies (POL-nnn) with enforcement tiers. | Document 05 | **PASSED** |
-| **7. State Machines** | 19 formal state machines (SM-01..19) with transition tables, guards, audit events, and error taxonomies. | Document 04 | **PASSED** |
-| **8. Workflows Documented** | 20 end-to-end business workflows (WF-01..20) with concurrency, idempotency, failure, and recovery flows. | Document 04 | **PASSED** |
-| **9. Transaction Boundaries** | Single-transaction ACID boundaries defined for all mutating commands; outbox dispatch for async events. | Document 06, Doc 07 | **PASSED** |
-| **10. Concurrency Strategy** | Optimistic concurrency via mandatory ETags and If-Match headers; explicit race condition resolution matrix. | Document 09, Doc 16 | **PASSED** |
-| **11. Idempotency Strategy** | `Idempotency-Key` headers on POST APIs, inbox deduplication tables, and sync mutation replay safety. | Document 06, Doc 09, Doc 16 | **PASSED** |
-| **12. Failure & Recovery** | Self-healing chaos profiles, circuit breakers, dead-letter outbox processing, and cold-site restore drills. | Document 06, Doc 15, Doc 16 | **PASSED** |
-| **13. Database Strategy** | PostgreSQL 17 modular schema design, keyset pagination indexing, partitioning, and zero cross-schema FKs. | Document 08 | **PASSED** |
-| **14. API Standards** | Versioned RESTful API (`/api/v1`), RFC 9457 ProblemDetails, keyset cursor pagination, and OpenAPI contracts. | Document 09 | **PASSED** |
-| **15. Security Architecture** | Defense-in-depth, Argon2id, token session rotation, KMS envelope encryption, and scan-before-serve gates. | Document 10 | **PASSED** |
-| **16. Mobile Offline Strategy** | React Native, SQLite (SQLCipher), two-way mutation queue, 7-day limit, 500-item cap, and chunked uploads. | Document 11 | **PASSED** |
-| **17. Excel Strategy** | Streaming XLSX parser, shared domain validation engine, chunked commits, and fully reversible batches. | Document 12 | **PASSED** |
-| **18. Financial Calculations** | Exact decimal arithmetic, AwayFromZero rounding, append-only cost postings, and variance conservation. | Document 13 | **PASSED** |
-| **19. Audit History** | Cryptographic SHA-256 hash chaining on all business audit events; non-repudiation and forensic export. | Document 14 | **PASSED** |
-| **20. Observability** | OpenTelemetry tracing, Prometheus metrics, structured JSON logging, and multi-tier SLO alerting. | Document 14 | **PASSED** |
-| **21. Testing Strategy** | Test pyramid, generated authorization and isolation suites, golden datasets, and critical scenarios TS-01..42. | Document 16 | **PASSED** |
-| **22. Deployment Architecture**| Multi-account AWS architecture, Terraform IaC, ECS Fargate serverless containers, and PITR recovery. | Document 15 | **PASSED** |
-| **23. Gaps & Contradictions** | Zero unresolved critical gaps; all 5 known reconciliations (RC-01..05) resolved and binding. | Document 00 | **PASSED** |
-
-### Quality Gate Sign-Off Statement
-> **Formal Architecture Quality Gate Verdict: PASSED.**  
-> The SlateIQ Architecture Foundation suite (Documents 00 through 18) satisfies all 23 criteria of Section 26 of the Master Governing Brief. It constitutes a complete, internally consistent, enterprise-grade engineering specification. **Engineering Phase 0 (Implementation Baseline) is formally authorized to commence.**
-
----
-
-## 7. Document Approval
-
-| Role | Name | Decision | Date |
-|------|------|----------|------|
-| Principal Enterprise Solution Architect | Architecture Team | Approved | 2026-11-06 |
-| Lead System Architect | Architecture Team | Approved | 2026-11-06 |
-| Chief Information Security Officer (CISO) | Architecture Team | Approved | 2026-11-06 |
-| Delivery Lead | TBD | Pending | — |
-| Executive Sponsor | TBD | Pending | — |
-
-*End of Document 00*
+*End of Document 0*
