@@ -75,5 +75,7 @@ app.MapHealthEndpoints();
 app.MapAuthEndpoints();
 app.MapProductionEndpoints();
 app.MapBudgetEndpoints();
+app.MapVendorEndpoints();
+app.MapExpenseEndpoints();
 
 app.Run();

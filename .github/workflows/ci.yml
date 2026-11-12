@@ -82,6 +82,7 @@ jobs:
           test -f infra/migrations/002_seed_canonical_roles_and_permissions.sql
           test -f infra/migrations/003_ops_provisioning_run.sql
           test -f infra/migrations/004_production_and_budgeting.sql
+          test -f infra/migrations/005_vendors_and_expenses.sql
           echo "Verified migration files present."
 
       - name: Verify Row Level Security Policies
