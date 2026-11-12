@@ -73,5 +73,7 @@ app.UseAuthorization();
 // Route Endpoints
 app.MapHealthEndpoints();
 app.MapAuthEndpoints();
+app.MapProductionEndpoints();
+app.MapBudgetEndpoints();
 
 app.Run();
